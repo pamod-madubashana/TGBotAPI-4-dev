@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "tgbotapi",
-        "width": 800,
-        "height": 600
+        "title": "Telegram Bot API Tester",
+        "width": 1440,
+        "height": 920,
+        "minWidth": 1100,
+        "minHeight": 760
       }
     ],
     "security": {
