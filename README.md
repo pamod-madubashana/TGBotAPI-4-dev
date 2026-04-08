@@ -1,7 +1,7 @@
 <h1 align="center">Telegram Bot API Tester</h1>
 
 <p align="center">
-  <img src="src-tauri/icons/icon.png" alt="TG API Tester icon" width="96" height="96" />
+  <img src="src-tauri/icons/icon.png" alt="TG API Tester icon" width="200" height="200" />
 </p>
 
 
