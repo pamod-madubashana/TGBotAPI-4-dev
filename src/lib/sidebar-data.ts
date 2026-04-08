@@ -1,209 +1,63 @@
 import { implementedMethods } from "@/methods";
 
-const generatedMethodSections = [
-  {
-    label: "Getting updates",
-    items: [
-      "getUpdates",
-      "setWebhook",
-      "deleteWebhook",
-      "getWebhookInfo",
-      "getMe",
-      "logOut",
-      "close",
-    ],
-  },
-  {
-    label: "Messages",
-    items: [
-      "sendMessage",
-      "forwardMessage",
-      "forwardMessages",
-      "copyMessage",
-      "copyMessages",
-      "sendPhoto",
-      "sendAudio",
-      "sendDocument",
-      "sendVideo",
-      "sendAnimation",
-      "sendVoice",
-      "sendVideoNote",
-      "sendPaidMedia",
-      "sendMediaGroup",
-      "sendLocation",
-      "sendVenue",
-      "sendContact",
-      "sendPoll",
-      "sendChecklist",
-      "sendDice",
-      "sendMessageDraft",
-      "sendChatAction",
-      "setMessageReaction",
-      "getUserProfilePhotos",
-      "getUserProfileAudios",
-      "setUserEmojiStatus",
-      "getFile",
-    ],
-  },
-  {
-    label: "Chats",
-    items: [
-      "banChatMember",
-      "unbanChatMember",
-      "restrictChatMember",
-      "promoteChatMember",
-      "setChatAdministratorCustomTitle",
-      "setChatMemberTag",
-      "banChatSenderChat",
-      "unbanChatSenderChat",
-      "setChatPermissions",
-      "exportChatInviteLink",
-      "createChatInviteLink",
-      "editChatInviteLink",
-      "createChatSubscriptionInviteLink",
-      "editChatSubscriptionInviteLink",
-      "revokeChatInviteLink",
-      "approveChatJoinRequest",
-      "declineChatJoinRequest",
-      "setChatPhoto",
-      "deleteChatPhoto",
-      "setChatTitle",
-      "setChatDescription",
-      "pinChatMessage",
-      "unpinChatMessage",
-      "unpinAllChatMessages",
-      "leaveChat",
-      "getChat",
-      "getChatAdministrators",
-      "getChatMemberCount",
-      "getChatMember",
-      "setChatStickerSet",
-      "deleteChatStickerSet",
-      "getForumTopicIconStickers",
-      "createForumTopic",
-      "editForumTopic",
-      "closeForumTopic",
-      "reopenForumTopic",
-      "deleteForumTopic",
-      "unpinAllForumTopicMessages",
-      "editGeneralForumTopic",
-      "closeGeneralForumTopic",
-      "reopenGeneralForumTopic",
-      "hideGeneralForumTopic",
-      "unhideGeneralForumTopic",
-      "unpinAllGeneralForumTopicMessages",
-      "answerCallbackQuery",
-      "getUserChatBoosts",
-      "getBusinessConnection",
-      "getManagedBotToken",
-      "replaceManagedBotToken",
-    ],
-  },
-  {
-    label: "Bot settings",
-    items: [
-      "setMyCommands",
-      "deleteMyCommands",
-      "getMyCommands",
-      "setMyName",
-      "getMyName",
-      "setMyDescription",
-      "getMyDescription",
-      "setMyShortDescription",
-      "getMyShortDescription",
-      "setMyProfilePhoto",
-      "removeMyProfilePhoto",
-      "setChatMenuButton",
-      "getChatMenuButton",
-      "setMyDefaultAdministratorRights",
-      "getMyDefaultAdministratorRights",
-    ],
-  },
-  {
-    label: "Stars and gifts",
-    items: [
-      "getAvailableGifts",
-      "sendGift",
-      "giftPremiumSubscription",
-      "verifyUser",
-      "verifyChat",
-      "removeUserVerification",
-      "removeChatVerification",
-      "getMyStarBalance",
-      "getStarTransactions",
-      "refundStarPayment",
-      "editUserStarSubscription",
-      "getBusinessAccountStarBalance",
-      "transferBusinessAccountStars",
-      "getBusinessAccountGifts",
-      "getUserGifts",
-      "getChatGifts",
-      "convertGiftToStars",
-      "upgradeGift",
-      "transferGift",
-    ],
-  },
-  {
-    label: "Business",
-    items: [
-      "readBusinessMessage",
-      "deleteBusinessMessages",
-      "setBusinessAccountName",
-      "setBusinessAccountUsername",
-      "setBusinessAccountBio",
-      "setBusinessAccountProfilePhoto",
-      "removeBusinessAccountProfilePhoto",
-      "setBusinessAccountGiftSettings",
-    ],
-  },
-  {
-    label: "Stories and inline",
-    items: [
-      "postStory",
-      "repostStory",
-      "editStory",
-      "deleteStory",
-      "answerInlineQuery",
-      "savePreparedInlineMessage",
-      "savePreparedKeyboardButton",
-    ],
-  },
-  {
-    label: "Message updates",
-    items: [
-      "editMessageText",
-      "editMessageCaption",
-      "editMessageMedia",
-      "editMessageLiveLocation",
-      "stopMessageLiveLocation",
-      "editMessageReplyMarkup",
-      "editMessageChecklist",
-      "stopPoll",
-      "deleteMessage",
-      "deleteMessages",
-      "approveSuggestedPost",
-      "declineSuggestedPost",
-    ],
-  },
-  {
-    label: "Payments",
-    items: [
-      "sendInvoice",
-      "createInvoiceLink",
-      "answerShippingQuery",
-      "answerPreCheckoutQuery",
-    ],
-  },
-  {
-    label: "Passport and games",
-    items: [
-      "setPassportDataErrors",
-      "sendGame",
-      "setGameScore",
-      "getGameHighScores",
-    ],
-  },
+const gettingUpdatesMethods = [
+  "getUpdates",
+  "setWebhook",
+  "deleteWebhook",
+  "getWebhookInfo",
 ];
+
+const updatingMessagesMethods = [
+  "editMessageText",
+  "editMessageCaption",
+  "editMessageMedia",
+  "editMessageLiveLocation",
+  "stopMessageLiveLocation",
+  "editMessageReplyMarkup",
+  "editMessageChecklist",
+  "stopPoll",
+  "deleteMessage",
+  "deleteMessages",
+  "approveSuggestedPost",
+  "declineSuggestedPost",
+];
+
+const stickerMethods = [
+  "sendSticker",
+  "getStickerSet",
+  "getCustomEmojiStickers",
+  "uploadStickerFile",
+  "createNewStickerSet",
+  "addStickerToSet",
+  "setStickerPositionInSet",
+  "deleteStickerFromSet",
+  "replaceStickerInSet",
+  "setStickerEmojiList",
+  "setStickerKeywords",
+  "setStickerMaskPosition",
+  "setStickerSetTitle",
+  "setStickerSetThumbnail",
+  "setCustomEmojiStickerSetThumbnail",
+  "deleteStickerSet",
+];
+
+const inlineModeMethods = [
+  "answerInlineQuery",
+  "answerWebAppQuery",
+  "savePreparedInlineMessage",
+  "savePreparedKeyboardButton",
+];
+
+const paymentMethods = [
+  "sendInvoice",
+  "createInvoiceLink",
+  "answerShippingQuery",
+  "answerPreCheckoutQuery",
+];
+
+const telegramPassportMethods = ["setPassportDataErrors"];
+
+const gameMethods = ["sendGame", "setGameScore", "getGameHighScores"];
 const generatedTypeNames = [
   "AcceptedGiftTypes",
   "AffiliateInfo",
@@ -497,32 +351,33 @@ const generatedTypeNames = [
   "WebhookInfo",
   "WriteAccessAllowed",
 ];
-const remainingMethodNames = [
-  "addStickerToSet",
-  "answerWebAppQuery",
-  "createNewStickerSet",
-  "deleteStickerFromSet",
-  "deleteStickerSet",
-  "getCustomEmojiStickers",
-  "getStickerSet",
-  "replaceStickerInSet",
-  "sendSticker",
-  "setCustomEmojiStickerSetThumbnail",
-  "setStickerEmojiList",
-  "setStickerKeywords",
-  "setStickerMaskPosition",
-  "setStickerPositionInSet",
-  "setStickerSetThumbnail",
-  "setStickerSetTitle",
-  "uploadStickerFile",
-];
+const officialMethodNames = new Set([
+  ...gettingUpdatesMethods,
+  ...updatingMessagesMethods,
+  ...stickerMethods,
+  ...inlineModeMethods,
+  ...paymentMethods,
+  ...telegramPassportMethods,
+  ...gameMethods,
+]);
+
+const availableMethodNames = implementedMethods
+  .map((method) => method.name)
+  .filter((name) => !officialMethodNames.has(name));
 
 export const sidebarGroups = {
   sections: [
-    ...generatedMethodSections.map((section) => ({
-      label: section.label,
-      items: section.items.map((name) => ({ name, kind: "method" as const })),
-    })),
+    {
+      label: "Getting updates",
+      items: [
+        { name: "Update", kind: "type" as const },
+        ...gettingUpdatesMethods.map((name) => ({
+          name,
+          kind: "method" as const,
+        })),
+        { name: "WebhookInfo", kind: "type" as const },
+      ],
+    },
     {
       label: "Available types",
       items: generatedTypeNames.map((name) => ({
@@ -530,17 +385,52 @@ export const sidebarGroups = {
         kind: "type" as const,
       })),
     },
-    ...(remainingMethodNames.length > 0
-      ? [
-          {
-            label: "Additional methods",
-            items: remainingMethodNames.map((name) => ({
-              name,
-              kind: "method" as const,
-            })),
-          },
-        ]
-      : []),
+    {
+      label: "Available methods",
+      items: availableMethodNames.map((name) => ({
+        name,
+        kind: "method" as const,
+      })),
+    },
+    {
+      label: "Updating messages",
+      items: updatingMessagesMethods.map((name) => ({
+        name,
+        kind: "method" as const,
+      })),
+    },
+    {
+      label: "Stickers",
+      items: stickerMethods.map((name) => ({
+        name,
+        kind: "method" as const,
+      })),
+    },
+    {
+      label: "Inline mode",
+      items: inlineModeMethods.map((name) => ({
+        name,
+        kind: "method" as const,
+      })),
+    },
+    {
+      label: "Payments",
+      items: paymentMethods.map((name) => ({
+        name,
+        kind: "method" as const,
+      })),
+    },
+    {
+      label: "Telegram Passport",
+      items: telegramPassportMethods.map((name) => ({
+        name,
+        kind: "method" as const,
+      })),
+    },
+    {
+      label: "Games",
+      items: gameMethods.map((name) => ({ name, kind: "method" as const })),
+    },
   ],
 };
 

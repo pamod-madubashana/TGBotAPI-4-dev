@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -51,8 +51,8 @@
     --sidebar-border: 220 12% 15%;
     --sidebar-ring: 213 94% 58%;
 
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", monospace;
   }
 }
 
@@ -60,11 +60,22 @@
   * {
     @apply border-border;
   }
+  html,
+  body,
+  #root {
+    user-select: none;
+    -webkit-user-select: none;
+  }
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-sans);
   }
-  code, pre, .font-mono {
+  img {
+    -webkit-user-drag: none;
+  }
+  code,
+  pre,
+  .font-mono {
     font-family: var(--font-mono);
   }
 }

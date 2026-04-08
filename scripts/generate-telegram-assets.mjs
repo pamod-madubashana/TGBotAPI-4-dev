@@ -25,210 +25,76 @@ const MULTILINE_PARAM_NAMES = new Set([
   "reason",
 ]);
 
-const SIDEBAR_METHOD_SECTIONS = [
-  {
-    label: "Getting updates",
-    methods: [
-      "getUpdates",
-      "setWebhook",
-      "deleteWebhook",
-      "getWebhookInfo",
-      "getMe",
-      "logOut",
-      "close",
-    ],
-  },
-  {
-    label: "Messages",
-    methods: [
-      "sendMessage",
-      "forwardMessage",
-      "forwardMessages",
-      "copyMessage",
-      "copyMessages",
-      "sendPhoto",
-      "sendAudio",
-      "sendDocument",
-      "sendVideo",
-      "sendAnimation",
-      "sendVoice",
-      "sendVideoNote",
-      "sendPaidMedia",
-      "sendMediaGroup",
-      "sendLocation",
-      "sendVenue",
-      "sendContact",
-      "sendPoll",
-      "sendChecklist",
-      "sendDice",
-      "sendMessageDraft",
-      "sendChatAction",
-      "setMessageReaction",
-      "getUserProfilePhotos",
-      "getUserProfileAudios",
-      "setUserEmojiStatus",
-      "getFile",
-    ],
-  },
-  {
-    label: "Chats",
-    methods: [
-      "banChatMember",
-      "unbanChatMember",
-      "restrictChatMember",
-      "promoteChatMember",
-      "setChatAdministratorCustomTitle",
-      "setChatMemberTag",
-      "banChatSenderChat",
-      "unbanChatSenderChat",
-      "setChatPermissions",
-      "exportChatInviteLink",
-      "createChatInviteLink",
-      "editChatInviteLink",
-      "createChatSubscriptionInviteLink",
-      "editChatSubscriptionInviteLink",
-      "revokeChatInviteLink",
-      "approveChatJoinRequest",
-      "declineChatJoinRequest",
-      "setChatPhoto",
-      "deleteChatPhoto",
-      "setChatTitle",
-      "setChatDescription",
-      "pinChatMessage",
-      "unpinChatMessage",
-      "unpinAllChatMessages",
-      "leaveChat",
-      "getChat",
-      "getChatAdministrators",
-      "getChatMemberCount",
-      "getChatMember",
-      "setChatStickerSet",
-      "deleteChatStickerSet",
-      "getForumTopicIconStickers",
-      "createForumTopic",
-      "editForumTopic",
-      "closeForumTopic",
-      "reopenForumTopic",
-      "deleteForumTopic",
-      "unpinAllForumTopicMessages",
-      "editGeneralForumTopic",
-      "closeGeneralForumTopic",
-      "reopenGeneralForumTopic",
-      "hideGeneralForumTopic",
-      "unhideGeneralForumTopic",
-      "unpinAllGeneralForumTopicMessages",
-      "answerCallbackQuery",
-      "getUserChatBoosts",
-      "getBusinessConnection",
-      "getManagedBotToken",
-      "replaceManagedBotToken",
-    ],
-  },
-  {
-    label: "Bot settings",
-    methods: [
-      "setMyCommands",
-      "deleteMyCommands",
-      "getMyCommands",
-      "setMyName",
-      "getMyName",
-      "setMyDescription",
-      "getMyDescription",
-      "setMyShortDescription",
-      "getMyShortDescription",
-      "setMyProfilePhoto",
-      "removeMyProfilePhoto",
-      "setChatMenuButton",
-      "getChatMenuButton",
-      "setMyDefaultAdministratorRights",
-      "getMyDefaultAdministratorRights",
-    ],
-  },
-  {
-    label: "Stars and gifts",
-    methods: [
-      "getAvailableGifts",
-      "sendGift",
-      "giftPremiumSubscription",
-      "verifyUser",
-      "verifyChat",
-      "removeUserVerification",
-      "removeChatVerification",
-      "getMyStarBalance",
-      "getStarTransactions",
-      "refundStarPayment",
-      "editUserStarSubscription",
-      "getBusinessAccountStarBalance",
-      "transferBusinessAccountStars",
-      "getBusinessAccountGifts",
-      "getUserGifts",
-      "getChatGifts",
-      "convertGiftToStars",
-      "upgradeGift",
-      "transferGift",
-    ],
-  },
-  {
-    label: "Business",
-    methods: [
-      "readBusinessMessage",
-      "deleteBusinessMessages",
-      "setBusinessAccountName",
-      "setBusinessAccountUsername",
-      "setBusinessAccountBio",
-      "setBusinessAccountProfilePhoto",
-      "removeBusinessAccountProfilePhoto",
-      "setBusinessAccountGiftSettings",
-    ],
-  },
-  {
-    label: "Stories and inline",
-    methods: [
-      "postStory",
-      "repostStory",
-      "editStory",
-      "deleteStory",
-      "answerInlineQuery",
-      "savePreparedInlineMessage",
-      "savePreparedKeyboardButton",
-    ],
-  },
-  {
-    label: "Message updates",
-    methods: [
-      "editMessageText",
-      "editMessageCaption",
-      "editMessageMedia",
-      "editMessageLiveLocation",
-      "stopMessageLiveLocation",
-      "editMessageReplyMarkup",
-      "editMessageChecklist",
-      "stopPoll",
-      "deleteMessage",
-      "deleteMessages",
-      "approveSuggestedPost",
-      "declineSuggestedPost",
-    ],
-  },
-  {
-    label: "Payments",
-    methods: [
-      "sendInvoice",
-      "createInvoiceLink",
-      "answerShippingQuery",
-      "answerPreCheckoutQuery",
-    ],
-  },
-  {
-    label: "Passport and games",
-    methods: [
-      "setPassportDataErrors",
-      "sendGame",
-      "setGameScore",
-      "getGameHighScores",
-    ],
-  },
+const GETTING_UPDATES_METHODS = [
+  "getUpdates",
+  "setWebhook",
+  "deleteWebhook",
+  "getWebhookInfo",
 ];
+
+const UPDATING_MESSAGES_METHODS = [
+  "editMessageText",
+  "editMessageCaption",
+  "editMessageMedia",
+  "editMessageLiveLocation",
+  "stopMessageLiveLocation",
+  "editMessageReplyMarkup",
+  "editMessageChecklist",
+  "stopPoll",
+  "deleteMessage",
+  "deleteMessages",
+  "approveSuggestedPost",
+  "declineSuggestedPost",
+];
+
+const STICKER_METHODS = [
+  "sendSticker",
+  "getStickerSet",
+  "getCustomEmojiStickers",
+  "uploadStickerFile",
+  "createNewStickerSet",
+  "addStickerToSet",
+  "setStickerPositionInSet",
+  "deleteStickerFromSet",
+  "replaceStickerInSet",
+  "setStickerEmojiList",
+  "setStickerKeywords",
+  "setStickerMaskPosition",
+  "setStickerSetTitle",
+  "setStickerSetThumbnail",
+  "setCustomEmojiStickerSetThumbnail",
+  "deleteStickerSet",
+];
+
+const INLINE_MODE_METHODS = [
+  "answerInlineQuery",
+  "answerWebAppQuery",
+  "savePreparedInlineMessage",
+  "savePreparedKeyboardButton",
+];
+
+const PAYMENT_METHODS = [
+  "sendInvoice",
+  "createInvoiceLink",
+  "answerShippingQuery",
+  "answerPreCheckoutQuery",
+];
+
+const PASSPORT_METHODS = ["setPassportDataErrors"];
+
+const GAME_METHODS = ["sendGame", "setGameScore", "getGameHighScores"];
+
+const OFFICIAL_METHOD_SECTIONS = [
+  { label: "Getting updates", methods: GETTING_UPDATES_METHODS },
+  { label: "Updating messages", methods: UPDATING_MESSAGES_METHODS },
+  { label: "Stickers", methods: STICKER_METHODS },
+  { label: "Inline mode", methods: INLINE_MODE_METHODS },
+  { label: "Payments", methods: PAYMENT_METHODS },
+  { label: "Telegram Passport", methods: PASSPORT_METHODS },
+  { label: "Games", methods: GAME_METHODS },
+];
+
+const SIDEBAR_METHOD_SECTIONS = OFFICIAL_METHOD_SECTIONS;
 
 function toSnakeCase(value) {
   return value
@@ -571,13 +437,13 @@ function buildTypeDefinition(typeName, typeSpec, usedByMethodsMap) {
 }
 
 function resolveCategory(methodName) {
-  for (const section of SIDEBAR_METHOD_SECTIONS) {
+  for (const section of OFFICIAL_METHOD_SECTIONS) {
     if (section.methods.includes(methodName)) {
       return section.label;
     }
   }
 
-  return "Telegram Bot API";
+  return "Available methods";
 }
 
 function buildMethodDefinition(methodName, methodSpec) {
@@ -644,26 +510,67 @@ function buildRustTelegramMod(methodNames) {
 }
 
 function buildSidebarFile(methodNames) {
-  const declaredMethods = new Set();
   const typeNames = Object.keys(spec.types).sort((left, right) =>
     left.localeCompare(right),
   );
-  const sections = SIDEBAR_METHOD_SECTIONS.map((section) => {
-    const items = section.methods.filter((method) =>
-      methodNames.includes(method),
-    );
-    items.forEach((method) => declaredMethods.add(method));
-    return {
-      label: section.label,
-      items,
-    };
-  }).filter((section) => section.items.length > 0);
-
-  const remainingMethods = methodNames.filter(
-    (method) => !declaredMethods.has(method),
+  const officialMethodNames = new Set(
+    OFFICIAL_METHOD_SECTIONS.flatMap((section) => section.methods),
   );
+  const availableMethods = methodNames.filter(
+    (method) => !officialMethodNames.has(method),
+  );
+  const sections = [
+    {
+      label: "Getting updates",
+      items: [
+        { name: "Update", kind: "type" },
+        ...gettingUpdatesMethods
+          .filter((method) => methodNames.includes(method))
+          .map((name) => ({ name, kind: "method" })),
+        { name: "WebhookInfo", kind: "type" },
+      ],
+    },
+    {
+      label: "Available types",
+      items: typeNames.map((name) => ({ name, kind: "type" })),
+    },
+    {
+      label: "Available methods",
+      items: availableMethods.map((name) => ({ name, kind: "method" })),
+    },
+    {
+      label: "Updating messages",
+      items: updatingMessagesMethods.map((name) => ({
+        name,
+        kind: "method",
+      })),
+    },
+    {
+      label: "Stickers",
+      items: stickerMethods.map((name) => ({ name, kind: "method" })),
+    },
+    {
+      label: "Inline mode",
+      items: inlineModeMethods.map((name) => ({ name, kind: "method" })),
+    },
+    {
+      label: "Payments",
+      items: paymentMethods.map((name) => ({ name, kind: "method" })),
+    },
+    {
+      label: "Telegram Passport",
+      items: telegramPassportMethods.map((name) => ({
+        name,
+        kind: "method",
+      })),
+    },
+    {
+      label: "Games",
+      items: gameMethods.map((name) => ({ name, kind: "method" })),
+    },
+  ];
 
-  return `import { implementedMethods } from "@/methods";\n\nconst generatedMethodSections = ${JSON.stringify(sections, null, 2)};\nconst generatedTypeNames = ${JSON.stringify(typeNames, null, 2)};\nconst remainingMethodNames = ${JSON.stringify(remainingMethods, null, 2)};\n\nexport const sidebarGroups = {\n  sections: [\n    ...generatedMethodSections.map((section) => ({\n      label: section.label,\n      items: section.items.map((name) => ({ name, kind: \"method\" as const })),\n    })),\n    {\n      label: \"Available types\",\n      items: generatedTypeNames.map((name) => ({ name, kind: \"type\" as const })),\n    },\n    ...(remainingMethodNames.length > 0\n      ? [\n          {\n            label: \"Additional methods\",\n            items: remainingMethodNames.map((name) => ({ name, kind: \"method\" as const })),\n          },\n        ]\n      : []),\n  ],\n};\n\nexport const completeMethodNames = implementedMethods.map((method) => method.name);\n`;
+  return `import { implementedMethods } from "@/methods";\n\nexport const sidebarGroups = {\n  sections: ${JSON.stringify(sections, null, 2)},\n};\n\nexport const completeMethodNames = implementedMethods.map((method) => method.name);\n`;
 }
 
 function buildTypeDataFile() {

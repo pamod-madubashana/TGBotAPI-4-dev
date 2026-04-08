@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import ReplyMarkupEditor from "@/components/app/ReplyMarkupEditor";
 import { useApp } from "@/lib/app-context";
 import { executeTelegramMethod, savePreset } from "@/lib/telegram";
 import { implementedMethods, methodRegistry } from "@/methods";
@@ -275,6 +276,10 @@ function ParamInput({
   }
 
   if (param.inputType === "textarea") {
+    if (param.name === "reply_markup") {
+      return <ReplyMarkupEditor value={value} onChange={onChange} />;
+    }
+
     return (
       <div className="w-full">
         <textarea

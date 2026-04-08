@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   ChevronRight,
@@ -6,8 +6,6 @@ import {
   Bot,
   Settings,
   LogOut,
-  Star,
-  Clock,
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react";
@@ -28,8 +26,14 @@ function SidebarSection({
   onSelect: (name: string, kind: "method" | "type") => void;
   collapsed: boolean;
 }) {
-  const [open, setOpen] = useState(false);
   const hasSelected = items.some((i) => i.name === selectedItem);
+  const [open, setOpen] = useState(hasSelected);
+
+  useEffect(() => {
+    if (hasSelected) {
+      setOpen(true);
+    }
+  }, [hasSelected]);
 
   if (collapsed) {
     return (
@@ -173,21 +177,6 @@ export default function AppSidebar() {
                 className="w-full h-8 pl-8 pr-3 bg-input border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 transition"
               />
             </div>
-          </div>
-        )}
-
-        {/* Quick links */}
-        {!sidebarCollapsed && (
-          <div className="px-2 py-2 border-b border-sidebar-border shrink-0 space-y-px">
-            <button
-              onClick={() => setCurrentView({ kind: "empty" })}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition"
-            >
-              <Star className="w-3.5 h-3.5" /> Favorites
-            </button>
-            <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition">
-              <Clock className="w-3.5 h-3.5" /> Recent
-            </button>
           </div>
         )}
 
