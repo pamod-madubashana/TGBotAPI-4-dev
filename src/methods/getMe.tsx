@@ -1,10 +1,14 @@
-import { TelegramMethod } from "@/types/telegram";
+import type { TelegramMethod } from "@/types/telegram";
 
-export const getMeMethod: TelegramMethod = {
+const method: TelegramMethod = {
   name: "getMe",
-  category: "Available methods",
+  href: "https://core.telegram.org/bots/api#getme",
+  category: "Getting updates",
   description:
-    "A simple method for testing your bot authentication token. Returns basic information about the connected bot as a User object.",
+    "A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.",
+  returns: ["User"],
   parameters: [],
   examplePayload: {},
 };
+
+export default method;

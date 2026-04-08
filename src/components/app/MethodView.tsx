@@ -8,6 +8,7 @@ import {
   FileJson,
   BookOpen,
   Loader2,
+  ExternalLink,
   Play,
   RotateCcw,
 } from "lucide-react";
@@ -173,7 +174,13 @@ function buildPayload(
     }
 
     if (param.valueMode === "json") {
-      payload[param.name] = JSON.parse(stringValue);
+      try {
+        payload[param.name] = JSON.parse(stringValue);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Invalid JSON payload.";
+        throw new Error(`${param.name} must contain valid JSON. ${message}`);
+      }
       continue;
     }
 
@@ -285,6 +292,24 @@ function ParamInput({
             {typeof value === "string" ? value.length : 0} characters
           </p>
         )}
+      </div>
+    );
+  }
+
+  if (param.inputType === "file") {
+    return (
+      <div className="w-full max-w-2xl">
+        <input
+          type="text"
+          value={typeof value === "string" ? value : ""}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={`Enter ${param.name} as a local file path, file_id, or URL...`}
+          className="h-9 px-3 bg-input border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 transition font-mono w-full"
+        />
+        <p className="text-[10px] text-muted-foreground mt-1">
+          Local file paths upload with multipart form data. Telegram file IDs
+          and URLs are sent as plain strings.
+        </p>
       </div>
     );
   }
@@ -725,6 +750,26 @@ export default function MethodView({ name }: { name: string }) {
         <p className="text-sm text-foreground/80 mt-3 leading-relaxed">
           {method.description}
         </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+          {method.returns && method.returns.length > 0 && (
+            <span>
+              Returns:{" "}
+              <span className="font-mono text-foreground">
+                {method.returns.join(" | ")}
+              </span>
+            </span>
+          )}
+          {method.href && (
+            <a
+              href={method.href}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition"
+            >
+              Official docs <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+        </div>
         <div className="mt-3 px-3 py-2 bg-muted/50 rounded-md">
           <code className="text-xs font-mono text-muted-foreground">
             /bot&lt;TOKEN&gt;/
@@ -732,6 +777,12 @@ export default function MethodView({ name }: { name: string }) {
           </code>
         </div>
       </div>
+
+      {method.parameters.length === 0 && (
+        <div className="rounded-lg border border-border bg-card px-5 py-4 text-xs text-muted-foreground">
+          This method does not require parameters. You can run it immediately.
+        </div>
+      )}
 
       {method.parameters.length > 0 && (
         <div className="space-y-4">

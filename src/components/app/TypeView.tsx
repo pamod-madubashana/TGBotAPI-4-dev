@@ -1,5 +1,5 @@
 import { useApp } from "@/lib/app-context";
-import { mockTypes } from "@/lib/mock-data";
+import { telegramTypes } from "@/lib/telegram-types";
 import { FileText, ExternalLink } from "lucide-react";
 
 function Badge({
@@ -20,7 +20,7 @@ function Badge({
 
 export default function TypeView({ name }: { name: string }) {
   const { setCurrentView } = useApp();
-  const type = mockTypes[name];
+  const type = telegramTypes[name];
 
   if (!type) {
     return (
@@ -48,6 +48,16 @@ export default function TypeView({ name }: { name: string }) {
             <p className="text-sm text-foreground/80 mt-2 leading-relaxed">
               {type.description}
             </p>
+            {type.href && (
+              <a
+                href={type.href}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition"
+              >
+                Official docs <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
           </div>
           <Badge variant="primary">Type</Badge>
         </div>
@@ -130,15 +140,21 @@ export default function TypeView({ name }: { name: string }) {
             Related Types
           </h3>
           <div className="flex flex-wrap gap-1.5">
-            {type.relatedTypes.map((t) => (
-              <button
-                key={t}
-                onClick={() => setCurrentView({ kind: "type", name: t })}
-                className="h-7 px-3 flex items-center gap-1.5 rounded-md text-xs font-mono bg-secondary text-secondary-foreground hover:bg-accent transition border border-border"
-              >
-                {t} <ExternalLink className="w-2.5 h-2.5" />
-              </button>
-            ))}
+            {type.relatedTypes.length > 0 ? (
+              type.relatedTypes.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setCurrentView({ kind: "type", name: t })}
+                  className="h-7 px-3 flex items-center gap-1.5 rounded-md text-xs font-mono bg-secondary text-secondary-foreground hover:bg-accent transition border border-border"
+                >
+                  {t} <ExternalLink className="w-2.5 h-2.5" />
+                </button>
+              ))
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No related types were inferred for this reference entry.
+              </p>
+            )}
           </div>
         </div>
         <div className="bg-card border border-border rounded-lg p-5">
@@ -146,15 +162,21 @@ export default function TypeView({ name }: { name: string }) {
             Used by Methods
           </h3>
           <div className="flex flex-wrap gap-1.5">
-            {type.usedByMethods.map((m) => (
-              <button
-                key={m}
-                onClick={() => setCurrentView({ kind: "method", name: m })}
-                className="h-7 px-3 flex items-center gap-1.5 rounded-md text-xs font-mono bg-primary/10 text-primary hover:bg-primary/20 transition border border-primary/20"
-              >
-                {m} <ExternalLink className="w-2.5 h-2.5" />
-              </button>
-            ))}
+            {type.usedByMethods.length > 0 ? (
+              type.usedByMethods.map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setCurrentView({ kind: "method", name: m })}
+                  className="h-7 px-3 flex items-center gap-1.5 rounded-md text-xs font-mono bg-primary/10 text-primary hover:bg-primary/20 transition border border-primary/20"
+                >
+                  {m} <ExternalLink className="w-2.5 h-2.5" />
+                </button>
+              ))
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No method references were inferred for this type.
+              </p>
+            )}
           </div>
         </div>
       </div>

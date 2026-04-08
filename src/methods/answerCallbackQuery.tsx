@@ -1,50 +1,58 @@
-import { TelegramMethod } from "@/types/telegram";
+import type { TelegramMethod } from "@/types/telegram";
 
-export const answerCallbackQueryMethod: TelegramMethod = {
+const method: TelegramMethod = {
   name: "answerCallbackQuery",
-  category: "Available methods",
+  href: "https://core.telegram.org/bots/api#answercallbackquery",
+  category: "Chats",
   description:
-    "Use this method to send answers to callback queries sent from inline keyboards.",
+    "Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.",
+  returns: ["Boolean"],
   parameters: [
     {
       name: "callback_query_id",
       type: "String",
       required: true,
-      description: "Unique identifier for the query to be answered.",
+      description: "Unique identifier for the query to be answered",
       inputType: "text",
     },
     {
       name: "text",
       type: "String",
       required: false,
-      description: "Notification text shown to the user.",
+      description:
+        "Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters",
       inputType: "textarea",
+      valueMode: "text",
     },
     {
       name: "show_alert",
       type: "Boolean",
       required: false,
-      description: "Shows an alert instead of a toast notification.",
+      description:
+        "If True, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.",
       inputType: "boolean",
     },
     {
       name: "url",
       type: "String",
       required: false,
-      description: "URL opened by the client, only for callback game buttons.",
-      inputType: "text",
+      description:
+        "URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @BotFather, specify the URL that opens your game - note that this will only work if the query comes from a callback_game button. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.",
+      inputType: "textarea",
+      valueMode: "text",
     },
     {
       name: "cache_time",
       type: "Integer",
       required: false,
       description:
-        "Maximum time in seconds that the result may be cached client-side.",
+        "The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.",
       inputType: "number",
     },
   ],
   examplePayload: {
-    callback_query_id: "1234567890",
-    text: "Action confirmed",
+    callback_query_id: "example",
   },
 };
+
+export default method;

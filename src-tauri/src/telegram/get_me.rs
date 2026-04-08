@@ -1,7 +1,10 @@
-use serde_json::{Map, Value};
+use serde_json::Value;
 
 use super::{RawTelegramResponse, TelegramClient};
 
-pub async fn execute(client: &TelegramClient) -> Result<RawTelegramResponse, String> {
-    client.post("getMe", Value::Object(Map::new())).await
+pub async fn execute(
+    client: &TelegramClient,
+    params: Value,
+) -> Result<RawTelegramResponse, String> {
+    client.post("getMe", params, &[]).await
 }

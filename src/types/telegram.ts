@@ -1,7 +1,9 @@
 export interface TelegramMethod {
   name: string;
+  href?: string;
   category: string;
   description: string;
+  returns?: string[];
   parameters: TelegramParam[];
   examplePayload?: Record<string, unknown>;
 }
@@ -18,15 +20,20 @@ export interface TelegramParam {
     | "boolean"
     | "select"
     | "union"
-    | "object";
+    | "object"
+    | "file";
   options?: string[];
-  unionTypes?: { label: string; inputType: "text" | "number" | "object" }[];
+  unionTypes?: {
+    label: string;
+    inputType: "text" | "number" | "object" | "file";
+  }[];
   fields?: TelegramParam[];
   valueMode?: "text" | "json";
 }
 
 export interface TelegramType {
   name: string;
+  href?: string;
   description: string;
   fields: TypeField[];
   example: Record<string, unknown>;

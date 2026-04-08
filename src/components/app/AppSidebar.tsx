@@ -12,7 +12,7 @@ import {
   PanelLeft,
 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
-import { sidebarGroups } from "@/lib/mock-data";
+import { sidebarGroups } from "@/lib/sidebar-data";
 import { motion, AnimatePresence } from "framer-motion";
 
 function SidebarSection({

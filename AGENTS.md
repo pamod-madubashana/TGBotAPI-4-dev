@@ -48,6 +48,7 @@
 ## Commands Reference
 - These commands are for reference; do not execute them unless the user asks.
 - Install dependencies: `npm install`
+- Regenerate Telegram assets: `npm run generate:telegram`
 - Frontend dev server: `npm run dev`
 - Tauri dev app: `npm run tauri dev`
 - Frontend production build: `npm run build`

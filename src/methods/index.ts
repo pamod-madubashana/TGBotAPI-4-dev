@@ -1,17 +1,14 @@
-import { answerCallbackQueryMethod } from "./answerCallbackQuery";
-import { editMessageTextMethod } from "./editMessageText";
-import { getMeMethod } from "./getMe";
-import { getUpdatesMethod } from "./getUpdates";
-import { sendMessageMethod } from "./sendMessage";
-import { sendPhotoMethod } from "./sendPhoto";
+import type { TelegramMethod } from "@/types/telegram";
 
-export const methodRegistry = {
-  [getMeMethod.name]: getMeMethod,
-  [getUpdatesMethod.name]: getUpdatesMethod,
-  [sendMessageMethod.name]: sendMessageMethod,
-  [sendPhotoMethod.name]: sendPhotoMethod,
-  [editMessageTextMethod.name]: editMessageTextMethod,
-  [answerCallbackQueryMethod.name]: answerCallbackQueryMethod,
-};
+const modules = import.meta.glob<{ default: TelegramMethod }>("./*.tsx", {
+  eager: true,
+});
+
+export const methodRegistry = Object.fromEntries(
+  Object.values(modules)
+    .map((module) => module.default)
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .map((method) => [method.name, method]),
+) as Record<string, TelegramMethod>;
 
 export const implementedMethods = Object.values(methodRegistry);
