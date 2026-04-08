@@ -1,8 +1,9 @@
+<h1 align="center">Telegram Bot API Tester</h1>
+
 <p align="center">
   <img src="src-tauri/icons/icon.png" alt="TG API Tester icon" width="96" height="96" />
 </p>
 
-<h1 align="center">Telegram Bot API Tester</h1>
 
 <p align="center">
   Desktop app for exploring, testing, and sending real Telegram Bot API requests with a React + Tauri + Rust stack.
