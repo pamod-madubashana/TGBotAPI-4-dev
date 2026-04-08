@@ -30,12 +30,15 @@
 - `src/components/ui/` contains reusable UI primitives.
 - `src/pages/` contains high-level screens like login and main app.
 - `src/lib/` contains shared client utilities and integrations.
+- `src/lib/sidebar-data.ts` and `src/lib/telegram-types.ts` are generated support files.
 - `src/store/` contains app-level state shapes and helpers.
 - `src/methods/` contains one frontend method definition per Telegram method.
 - `src/types/` contains shared frontend TypeScript types.
 - `src-tauri/src/commands/` contains Tauri command handlers.
 - `src-tauri/src/telegram/` contains one Rust file per Telegram method.
 - `src-tauri/src/storage/` contains local persistence helpers.
+- `telegram-api-spec.json` is the local Bot API source used to generate method metadata.
+- `scripts/generate-telegram-assets.mjs` regenerates method, type, and sidebar assets.
 
 ## Architecture Rules
 - One Telegram method = one React method file + one Rust method file.
@@ -44,20 +47,25 @@
 - Keep the method registry centralized rather than spreading method metadata across UI files.
 - Keep network calls inside the Tauri backend, not directly in the React UI.
 - Keep token persistence local through Tauri commands, not browser-only storage.
+- Prefer updating the spec/generator when many Telegram method files need to change together.
+- Preserve the visual `reply_markup` editor rather than reverting to JSON-only UX unless the user asks.
 
 ## Commands Reference
 - These commands are for reference; do not execute them unless the user asks.
 - Install dependencies: `npm install`
 - Regenerate Telegram assets: `npm run generate:telegram`
 - Frontend dev server: `npm run dev`
-- Tauri dev app: `npm run tauri dev`
+- Frontend development build: `npm run build:dev`
+- Tauri dev app: `npm run tauri:dev`
 - Frontend production build: `npm run build`
-- Tauri production build: `npm run tauri build`
+- Tauri production build: `npm run tauri:build`
+- Raw Tauri CLI passthrough: `npm run tauri -- <args>`
 - Frontend lint: `npm run lint`
 - Frontend tests: `npm run test`
 - Rust check: `cargo check --manifest-path src-tauri/Cargo.toml`
 - Rust tests: `cargo test --manifest-path src-tauri/Cargo.toml`
 - Rust format: `cargo fmt --manifest-path src-tauri/Cargo.toml`
+- Utility sync script: `scripts\sync.bat`
 
 ## Single-Test Commands
 - Run one Vitest file: `npx vitest run src/test/example.test.ts`
@@ -65,6 +73,7 @@
 - Run Vitest in a specific folder: `npx vitest run src/test`
 - Run one Playwright spec: `npx playwright test path/to/spec.ts`
 - Run Playwright tests by grep: `npx playwright test --grep "scenario name"`
+- Playwright is installed, but no committed spec folder exists yet; add spec paths as needed.
 - Run one Rust test by name: `cargo test test_name --manifest-path src-tauri/Cargo.toml`
 - Run Rust tests in one module: `cargo test module_name --manifest-path src-tauri/Cargo.toml`
 
@@ -91,6 +100,7 @@
 - Prefer controlled inputs for live Telegram method forms.
 - Use `@/` path aliases for imports from `src/`.
 - Keep page-level orchestration in `src/pages/` or app-context/store layers, not deep inside primitives.
+- Preserve the desktop-oriented UX choices already in the app, such as disabled context menu and reduced browser-like behavior.
 
 ## Import Conventions
 - Put third-party imports before local imports.
@@ -136,6 +146,7 @@
 - Keep dark visual language, spacing, and typography consistent with current screens.
 - When wiring real data, keep placeholders, empty states, and response panels visually intact.
 - Prefer additive changes that make the current UI functional rather than visually different.
+- For complex Telegram structures like `reply_markup`, prefer guided visual editors over raw JSON inputs when practical.
 
 ## Testing Guidance
 - Add or update tests when behavior changes in a meaningful, testable way.
