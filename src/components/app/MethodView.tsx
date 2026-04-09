@@ -481,7 +481,7 @@ function ParamInput({
           value={typeof value === "string" ? value : ""}
           onChange={(event) => onChange(event.target.value)}
           placeholder={`Enter ${param.name}...`}
-          className="w-full min-h-[80px] px-3 py-2 bg-input border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 transition font-mono resize-y"
+          className="w-full min-h-[80px] px-3 py-2 bg-input border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 transition font-mono resize-none"
         />
         {param.valueMode === "json" ? (
           <p className="text-[10px] text-muted-foreground mt-1">
@@ -556,7 +556,7 @@ function ParamInput({
         value={typeof value === "string" ? value : ""}
         onChange={(event) => onChange(event.target.value)}
         placeholder={`Enter ${param.name} as JSON...`}
-        className="w-full min-h-[80px] px-3 py-2 bg-input border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 transition font-mono resize-y"
+        className="w-full min-h-[80px] px-3 py-2 bg-input border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 transition font-mono resize-none"
       />
     );
   }
@@ -614,10 +614,12 @@ function ResponseViewer({
   state,
   execution,
   errorMessage,
+  className,
 }: {
   state: "idle" | "loading" | "success" | "error";
   execution: TelegramMethodExecutionResult | null;
   errorMessage: string;
+  className?: string;
 }) {
   const [tab, setTab] = useState<"pretty" | "raw" | "summary">("pretty");
   const [copied, setCopied] = useState(false);
@@ -643,7 +645,9 @@ function ResponseViewer({
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
+    <div
+      className={`bg-card border border-border rounded-lg overflow-hidden ${className ?? ""}`}
+    >
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
         <div className="flex items-center gap-3">
           <span className="text-xs font-medium text-foreground">Response</span>
@@ -925,9 +929,9 @@ export default function MethodView({ name }: { name: string }) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin p-6 space-y-6">
-      <div className="bg-card border border-border rounded-lg p-5">
-        <div className="flex items-start justify-between gap-4">
+    <div className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-5 space-y-4">
+      <div className="bg-card border border-border rounded-lg p-4 md:p-5">
+        <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold font-mono text-foreground">
               {method.name}
@@ -942,10 +946,10 @@ export default function MethodView({ name }: { name: string }) {
             <Badge>Telegram Bot API</Badge>
           </div>
         </div>
-        <p className="text-sm text-foreground/80 mt-3 leading-relaxed">
+        <p className="text-sm text-foreground/80 mt-2.5 leading-relaxed">
           {method.description}
         </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+        <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
           {method.returns && method.returns.length > 0 && (
             <span>
               Returns:{" "}
@@ -965,7 +969,7 @@ export default function MethodView({ name }: { name: string }) {
             </a>
           )}
         </div>
-        <div className="mt-3 px-3 py-2 bg-muted/50 rounded-md">
+        <div className="mt-2.5 px-3 py-2 bg-muted/50 rounded-md">
           <code className="text-xs font-mono text-muted-foreground">
             /bot&lt;TOKEN&gt;/
             <span className="text-primary">{method.name}</span>
@@ -974,125 +978,132 @@ export default function MethodView({ name }: { name: string }) {
       </div>
 
       {method.parameters.length === 0 && (
-        <div className="rounded-lg border border-border bg-card px-5 py-4 text-xs text-muted-foreground">
+        <div className="rounded-lg border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
           This method does not require parameters. You can run it immediately.
         </div>
       )}
 
-      {method.parameters.length > 0 && (
-        <div className="space-y-4">
-          {requiredParams.length > 0 && (
-            <div className="bg-card border border-border rounded-lg p-5">
-              <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-primary" /> Required
-                Parameters
-              </h3>
-              <div className="space-y-5">
-                {requiredParams.map((param) => (
-                  <ParamRow
-                    key={param.name}
-                    param={param}
-                    value={formValues[param.name]}
-                    onChange={(value) => updateParamValue(param.name, value)}
-                    isRequired={true}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+      <div className="xl:grid xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] xl:items-start xl:gap-4 space-y-4 xl:space-y-0">
+        <div className="space-y-4 min-w-0">
+          {method.parameters.length > 0 && (
+            <div className="space-y-4">
+              {requiredParams.length > 0 && (
+                <div className="bg-card border border-border rounded-lg p-4 md:p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-primary" /> Required
+                    Parameters
+                  </h3>
+                  <div className="space-y-4">
+                    {requiredParams.map((param) => (
+                      <ParamRow
+                        key={param.name}
+                        param={param}
+                        value={formValues[param.name]}
+                        onChange={(value) =>
+                          updateParamValue(param.name, value)
+                        }
+                        isRequired={true}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {optionalParams.length > 0 && (
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <button
-                onClick={() => setOptionalOpen(!optionalOpen)}
-                className="w-full flex items-center justify-between p-5 text-left"
-              >
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  Optional Parameters
-                  <span className="text-[10px] font-normal text-muted-foreground">
-                    ({optionalParams.length})
-                  </span>
-                </h3>
-                {optionalOpen ? (
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                )}
-              </button>
-              <AnimatePresence>
-                {optionalOpen && (
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: "auto" }}
-                    exit={{ height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
+              {optionalParams.length > 0 && (
+                <div className="bg-card border border-border rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => setOptionalOpen(!optionalOpen)}
+                    className="w-full flex items-center justify-between px-4 py-4 md:px-5 text-left"
                   >
-                    <div className="px-5 pb-5 space-y-5 border-t border-border pt-5">
-                      {optionalParams.map((param) => (
-                        <ParamRow
-                          key={param.name}
-                          param={param}
-                          value={formValues[param.name]}
-                          onChange={(value) =>
-                            updateParamValue(param.name, value)
-                          }
-                          isRequired={false}
-                        />
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      Optional Parameters
+                      <span className="text-[10px] font-normal text-muted-foreground">
+                        ({optionalParams.length})
+                      </span>
+                    </h3>
+                    {optionalOpen ? (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </button>
+                  <AnimatePresence>
+                    {optionalOpen && (
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: "auto" }}
+                        exit={{ height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-4 pb-4 md:px-5 md:pb-5 space-y-4 border-t border-border pt-4 md:pt-5">
+                          {optionalParams.map((param) => (
+                            <ParamRow
+                              key={param.name}
+                              param={param}
+                              value={formValues[param.name]}
+                              onChange={(value) =>
+                                updateParamValue(param.name, value)
+                              }
+                              isRequired={false}
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      {localError && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-xs text-destructive">
-          {localError}
-        </div>
-      )}
-
-      <div className="flex items-center gap-2 flex-wrap">
-        <button
-          onClick={() => void handleSubmit()}
-          disabled={responseState === "loading"}
-          className="h-10 px-6 bg-primary text-primary-foreground rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition"
-        >
-          {responseState === "loading" ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Play className="w-4 h-4" />
+          {localError && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-xs text-destructive">
+              {localError}
+            </div>
           )}
-          Submit Test
-        </button>
-        <button
-          onClick={handleReset}
-          className="h-10 px-4 bg-secondary text-secondary-foreground rounded-lg text-sm flex items-center gap-2 hover:bg-accent transition border border-border"
-        >
-          <RotateCcw className="w-3.5 h-3.5" /> Reset Form
-        </button>
-        <button
-          onClick={handleLoadExample}
-          className="h-10 px-4 bg-secondary text-secondary-foreground rounded-lg text-sm flex items-center gap-2 hover:bg-accent transition border border-border"
-        >
-          <BookOpen className="w-3.5 h-3.5" /> Load Example
-        </button>
-        <button
-          onClick={() => void handleCopyJson()}
-          className="h-10 px-4 bg-secondary text-secondary-foreground rounded-lg text-sm flex items-center gap-2 hover:bg-accent transition border border-border"
-        >
-          <FileJson className="w-3.5 h-3.5" /> Preview JSON
-        </button>
-      </div>
 
-      <ResponseViewer
-        state={responseState}
-        execution={lastResponse}
-        errorMessage={localError}
-      />
+          <div className="flex items-center gap-2 flex-wrap rounded-lg border border-border bg-card px-3 py-3">
+            <button
+              onClick={() => void handleSubmit()}
+              disabled={responseState === "loading"}
+              className="h-9 px-5 bg-primary text-primary-foreground rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition"
+            >
+              {responseState === "loading" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              Submit Test
+            </button>
+            <button
+              onClick={handleReset}
+              className="h-9 px-3.5 bg-secondary text-secondary-foreground rounded-lg text-sm flex items-center gap-2 hover:bg-accent transition border border-border"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Reset
+            </button>
+            <button
+              onClick={handleLoadExample}
+              className="h-9 px-3.5 bg-secondary text-secondary-foreground rounded-lg text-sm flex items-center gap-2 hover:bg-accent transition border border-border"
+            >
+              <BookOpen className="w-3.5 h-3.5" /> Example
+            </button>
+            <button
+              onClick={() => void handleCopyJson()}
+              className="h-9 px-3.5 bg-secondary text-secondary-foreground rounded-lg text-sm flex items-center gap-2 hover:bg-accent transition border border-border"
+            >
+              <FileJson className="w-3.5 h-3.5" /> JSON
+            </button>
+          </div>
+        </div>
+
+        <ResponseViewer
+          className="xl:sticky xl:top-4"
+          state={responseState}
+          execution={lastResponse}
+          errorMessage={localError}
+        />
+      </div>
     </div>
   );
 }

@@ -301,11 +301,11 @@ export default function AppSidebar() {
   return (
     <>
       <div
-        className={`h-screen flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-200 shrink-0 ${sidebarCollapsed ? "w-14" : "w-72"}`}
+        className={`h-screen flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-200 shrink-0 ${sidebarCollapsed ? "w-14" : "w-64"}`}
       >
         {/* Header */}
         <div className="border-b border-sidebar-border shrink-0">
-          <div className="flex items-center gap-3 p-3">
+          <div className="flex items-center gap-3 px-3 py-2.5">
             <BotAvatar
               name={botName}
               photoUrl={botPhotoUrl}
@@ -343,7 +343,7 @@ export default function AppSidebar() {
                 transition={{ duration: 0.18 }}
                 className="overflow-hidden border-t border-sidebar-border/60"
               >
-                <div className="space-y-3 p-3">
+                <div className="space-y-3 p-2.5">
                   <div className="space-y-1">
                     {availableBots.map((savedBot) => {
                       const savedBotName = getBotName(savedBot.profile);
@@ -501,7 +501,7 @@ export default function AppSidebar() {
         )}
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin py-1">
+        <div className="flex-1 overflow-y-auto scrollbar-thin py-0.5">
           {filteredSections.map((section) => (
             <SidebarSection
               key={section.label}
