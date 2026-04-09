@@ -1,13 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Search,
-  ChevronRight,
-  ChevronDown,
-  Bot,
-  LogOut,
-  PanelLeftClose,
-  PanelLeft,
-} from "lucide-react";
+import { Search, ChevronRight, ChevronDown, Bot, LogOut } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { sidebarGroups } from "@/lib/sidebar-data";
 import { motion, AnimatePresence } from "framer-motion";
@@ -92,7 +84,6 @@ function SidebarSection({
 export default function AppSidebar() {
   const {
     sidebarCollapsed,
-    toggleSidebar,
     currentView,
     setCurrentView,
     token,
@@ -180,17 +171,6 @@ export default function AppSidebar() {
               </p>
             </div>
           )}
-          <button
-            onClick={toggleSidebar}
-            className="text-muted-foreground hover:text-foreground transition shrink-0"
-            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {sidebarCollapsed ? (
-              <PanelLeft className="w-4 h-4" />
-            ) : (
-              <PanelLeftClose className="w-4 h-4" />
-            )}
-          </button>
         </div>
 
         {/* Search */}
