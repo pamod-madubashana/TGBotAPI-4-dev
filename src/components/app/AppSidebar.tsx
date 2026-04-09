@@ -146,6 +146,8 @@ export default function AppSidebar() {
       : typeof botProfile?.first_name === "string"
         ? String(botProfile.first_name)
         : "Connected Bot";
+  const botPhotoUrl =
+    typeof botProfile?.photoUrl === "string" ? botProfile.photoUrl : null;
 
   return (
     <>
@@ -156,8 +158,16 @@ export default function AppSidebar() {
         <div
           className={`flex items-center gap-2 p-3 border-b border-sidebar-border shrink-0 ${sidebarCollapsed ? "justify-center" : ""}`}
         >
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <Bot className="w-4 h-4 text-primary" />
+          <div className="w-8 h-8 overflow-hidden rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            {botPhotoUrl ? (
+              <img
+                src={botPhotoUrl}
+                alt={botName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <Bot className="w-4 h-4 text-primary" />
+            )}
           </div>
           {!sidebarCollapsed && (
             <div className="flex-1 min-w-0 space-y-0.5">
