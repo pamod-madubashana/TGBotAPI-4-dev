@@ -7,6 +7,7 @@ import {
   LogOut,
   Plus,
   Loader2,
+  X,
 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { sidebarGroups } from "@/lib/sidebar-data";
@@ -381,7 +382,11 @@ export default function AppSidebar() {
                     disabled={Boolean(activeBotAction)}
                     className="flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-xs font-medium text-muted-foreground transition hover:border-primary/30 hover:bg-accent/40 hover:text-foreground"
                   >
-                    <Plus className="h-3.5 w-3.5" />
+                    {showAddBotForm ? (
+                      <X className="h-3.5 w-3.5" />
+                    ) : (
+                      <Plus className="h-3.5 w-3.5" />
+                    )}
                     {showAddBotForm ? "Cancel" : "Add another bot"}
                   </button>
 
