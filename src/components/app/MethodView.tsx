@@ -576,11 +576,16 @@ function ParamRow({
   param,
   value,
   onChange,
+  isRequired,
 }: {
   param: TelegramParam;
   value: unknown;
   onChange: (value: unknown) => void;
+  isRequired: boolean;
 }) {
+  const isConditionallyRequired =
+    !param.required && /required if/i.test(param.description);
+
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-2 flex-wrap">
@@ -588,7 +593,10 @@ function ParamRow({
           {param.name}
         </span>
         <Badge>{param.type}</Badge>
-        {param.required ? (
+        {isConditionallyRequired ? (
+          <Badge variant="warning">Conditional</Badge>
+        ) : null}
+        {isRequired ? (
           <Badge variant="warning">Required</Badge>
         ) : (
           <Badge>Optional</Badge>
@@ -986,6 +994,7 @@ export default function MethodView({ name }: { name: string }) {
                     param={param}
                     value={formValues[param.name]}
                     onChange={(value) => updateParamValue(param.name, value)}
+                    isRequired={true}
                   />
                 ))}
               </div>
@@ -1028,6 +1037,7 @@ export default function MethodView({ name }: { name: string }) {
                           onChange={(value) =>
                             updateParamValue(param.name, value)
                           }
+                          isRequired={false}
                         />
                       ))}
                     </div>
