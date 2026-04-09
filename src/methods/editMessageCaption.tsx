@@ -53,7 +53,7 @@ const method: TelegramMethod = {
     {
       name: "caption",
       type: "String",
-      required: false,
+      required: true,
       description:
         "New caption of the message, 0-1024 characters after entities parsing",
       inputType: "textarea",
@@ -93,7 +93,9 @@ const method: TelegramMethod = {
       valueMode: "json",
     },
   ],
-  examplePayload: {},
+  examplePayload: {
+    caption: "Updated caption from Telegram Bot API Tester",
+  },
 };
 
 export default method;
