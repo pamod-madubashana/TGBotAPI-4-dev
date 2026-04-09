@@ -82,6 +82,81 @@ function createEmptyValue(param: TelegramParam): unknown {
   return "";
 }
 
+function getNumberUnionVariantIndex(param: TelegramParam) {
+  return param.unionTypes?.findIndex(
+    (unionType) => unionType.inputType === "number",
+  );
+}
+
+function isChatIdUnionParam(param: TelegramParam) {
+  return param.inputType === "union" && param.name.endsWith("chat_id");
+}
+
+function getInitialUnionValue(
+  param: TelegramParam,
+  incoming: unknown,
+): UnionValue {
+  const numberVariantIndex = getNumberUnionVariantIndex(param);
+  const hasNumberVariant =
+    numberVariantIndex !== undefined && numberVariantIndex >= 0;
+
+  if (typeof incoming === "number") {
+    return {
+      variantIndex: hasNumberVariant ? numberVariantIndex : 0,
+      value: String(incoming),
+    } satisfies UnionValue;
+  }
+
+  if (isChatIdUnionParam(param) && hasNumberVariant) {
+    return {
+      variantIndex: numberVariantIndex,
+      value: "",
+    } satisfies UnionValue;
+  }
+
+  return {
+    variantIndex: 1,
+    value: incoming === undefined || incoming === null ? "" : String(incoming),
+  } satisfies UnionValue;
+}
+
+function hasParamValue(param: TelegramParam, value: unknown) {
+  if (param.inputType === "boolean") {
+    return value === true;
+  }
+
+  if (param.inputType === "union" && isUnionValue(value)) {
+    return value.value.trim() !== "";
+  }
+
+  return typeof value === "string" ? value.trim() !== "" : value != null;
+}
+
+function getConditionalRequiredParams(
+  method: TelegramMethod,
+  values: FormValues,
+) {
+  const chatIdParam = method.parameters.find(
+    (param) => param.name === "chat_id",
+  );
+  const messageIdParam = method.parameters.find(
+    (param) => param.name === "message_id",
+  );
+  const inlineMessageIdParam = method.parameters.find(
+    (param) => param.name === "inline_message_id",
+  );
+
+  if (!chatIdParam || !messageIdParam || !inlineMessageIdParam) {
+    return new Set<string>();
+  }
+
+  if (hasParamValue(inlineMessageIdParam, values.inline_message_id)) {
+    return new Set<string>();
+  }
+
+  return new Set(["chat_id", "message_id"]);
+}
+
 function createFormState(
   method: TelegramMethod,
   payload?: Record<string, unknown>,
@@ -90,12 +165,7 @@ function createFormState(
     const incoming = payload?.[param.name];
 
     if (param.inputType === "union") {
-      const variantIndex = typeof incoming === "number" ? 0 : 1;
-      acc[param.name] = {
-        variantIndex,
-        value:
-          incoming === undefined || incoming === null ? "" : String(incoming),
-      } satisfies UnionValue;
+      acc[param.name] = getInitialUnionValue(param, incoming);
       return acc;
     }
 
@@ -123,6 +193,24 @@ function buildPayload(
   strict = true,
 ) {
   const payload: Record<string, unknown> = {};
+  const conditionalRequiredParams = getConditionalRequiredParams(
+    method,
+    values,
+  );
+
+  if (strict) {
+    for (const paramName of conditionalRequiredParams) {
+      const param = method.parameters.find((item) => item.name === paramName);
+
+      if (!param || hasParamValue(param, values[paramName])) {
+        continue;
+      }
+
+      throw new Error(
+        `${paramName} is required unless inline_message_id is provided.`,
+      );
+    }
+  }
 
   for (const param of method.parameters) {
     const rawValue = values[param.name];
@@ -600,13 +688,25 @@ export default function MethodView({ name }: { name: string }) {
     }));
   }, []);
 
+  const conditionalRequiredParams = useMemo(
+    () =>
+      method ? getConditionalRequiredParams(method, formValues) : new Set(),
+    [formValues, method],
+  );
   const requiredParams = useMemo(
-    () => method?.parameters.filter((param) => param.required) ?? [],
-    [method],
+    () =>
+      method?.parameters.filter(
+        (param) => param.required || conditionalRequiredParams.has(param.name),
+      ) ?? [],
+    [conditionalRequiredParams, method],
   );
   const optionalParams = useMemo(
-    () => method?.parameters.filter((param) => !param.required) ?? [],
-    [method],
+    () =>
+      method?.parameters.filter(
+        (param) =>
+          !param.required && !conditionalRequiredParams.has(param.name),
+      ) ?? [],
+    [conditionalRequiredParams, method],
   );
 
   const handleSubmit = useCallback(async () => {
