@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import ReplyMarkupEditor from "@/components/app/ReplyMarkupEditor";
 import { useApp } from "@/lib/app-context";
-import { executeTelegramMethod, savePreset } from "@/lib/telegram";
+import { executeTelegramMethod } from "@/lib/telegram";
 import { implementedMethods, methodRegistry } from "@/methods";
 import {
   TelegramMethod,
@@ -669,29 +669,6 @@ export default function MethodView({ name }: { name: string }) {
     }
   }, [formValues, method]);
 
-  const handleSavePreset = useCallback(async () => {
-    if (!method) {
-      return;
-    }
-
-    const defaultName = `${method.name}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}`;
-    const presetName = window.prompt("Preset name", defaultName);
-
-    if (!presetName) {
-      return;
-    }
-
-    try {
-      const payload = buildPayload(method, formValues, false);
-      await savePreset(presetName, method.name, payload);
-      toast.success(`Saved preset "${presetName}".`);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Unable to save preset.";
-      toast.error(message);
-    }
-  }, [formValues, method]);
-
   useEffect(() => {
     if (!method) {
       registerMethodActions(null);
@@ -703,7 +680,6 @@ export default function MethodView({ name }: { name: string }) {
       reset: handleReset,
       loadExample: handleLoadExample,
       copyJson: handleCopyJson,
-      savePreset: handleSavePreset,
       isBusy: responseState === "loading",
     });
 
@@ -712,7 +688,6 @@ export default function MethodView({ name }: { name: string }) {
     handleCopyJson,
     handleLoadExample,
     handleReset,
-    handleSavePreset,
     handleSubmit,
     method,
     registerMethodActions,

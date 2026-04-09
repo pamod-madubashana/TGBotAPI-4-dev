@@ -11,7 +11,6 @@ export interface MethodToolbarActions {
   reset?: () => void;
   loadExample?: () => void;
   copyJson?: () => Promise<void>;
-  savePreset?: () => Promise<void>;
   isBusy?: boolean;
 }
 

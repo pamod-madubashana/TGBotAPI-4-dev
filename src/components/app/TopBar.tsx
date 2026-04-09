@@ -1,4 +1,4 @@
-import { Save, RotateCcw, Copy, Play } from "lucide-react";
+import { RotateCcw, Copy, Play } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 
 export default function TopBar() {
@@ -22,13 +22,6 @@ export default function TopBar() {
       </div>
       {currentView.kind === "method" && (
         <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => void methodActions?.savePreset?.()}
-            disabled={isBusy || !methodActions?.savePreset}
-            className="h-7 px-3 flex items-center gap-1.5 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition border border-border disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <Save className="w-3 h-3" /> Save Preset
-          </button>
           <button
             onClick={() => methodActions?.reset?.()}
             disabled={isBusy || !methodActions?.reset}
