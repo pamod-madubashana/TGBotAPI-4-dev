@@ -4,7 +4,6 @@ import {
   ChevronRight,
   ChevronDown,
   Bot,
-  Settings,
   LogOut,
   PanelLeftClose,
   PanelLeft,
@@ -161,9 +160,13 @@ export default function AppSidebar() {
             <Bot className="w-4 h-4 text-primary" />
           </div>
           {!sidebarCollapsed && (
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <p className="text-[10px] text-muted-foreground">Connected Bot</p>
               <p className="text-xs font-semibold text-foreground truncate">
-                TG API Tester
+                {botName}
+              </p>
+              <p className="text-[10px] font-mono text-muted-foreground truncate">
+                {maskedToken}
               </p>
             </div>
           )}
@@ -216,28 +219,7 @@ export default function AppSidebar() {
         <div
           className={`border-t border-sidebar-border p-3 shrink-0 ${sidebarCollapsed ? "flex flex-col items-center gap-2" : "space-y-2"}`}
         >
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2 px-1">
-              <div className="w-2 h-2 rounded-full bg-success shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] text-muted-foreground">
-                  Connected Bot
-                </p>
-                <p className="text-xs text-foreground truncate">{botName}</p>
-                <p className="text-[10px] font-mono text-muted-foreground truncate">
-                  {maskedToken}
-                </p>
-              </div>
-            </div>
-          )}
           <div className={`flex ${sidebarCollapsed ? "flex-col" : ""} gap-1`}>
-            <button
-              className="flex-1 h-7 flex items-center justify-center gap-1.5 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition"
-              title="Settings"
-            >
-              <Settings className="w-3.5 h-3.5" />
-              {!sidebarCollapsed && <span>Settings</span>}
-            </button>
             <button
               onClick={() => setShowLogout(true)}
               className="flex-1 h-7 flex items-center justify-center gap-1.5 rounded-md text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
