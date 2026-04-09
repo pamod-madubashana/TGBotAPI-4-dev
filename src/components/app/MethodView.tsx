@@ -122,7 +122,7 @@ function getInitialUnionValue(
 
 function hasParamValue(param: TelegramParam, value: unknown) {
   if (param.inputType === "boolean") {
-    return value === true;
+    return typeof value === "boolean";
   }
 
   if (param.inputType === "union" && isUnionValue(value)) {
@@ -136,25 +136,146 @@ function getConditionalRequiredParams(
   method: TelegramMethod,
   values: FormValues,
 ) {
-  const chatIdParam = method.parameters.find(
-    (param) => param.name === "chat_id",
-  );
-  const messageIdParam = method.parameters.find(
-    (param) => param.name === "message_id",
-  );
-  const inlineMessageIdParam = method.parameters.find(
-    (param) => param.name === "inline_message_id",
+  const conditionalParams = new Set<string>();
+  const paramsByName = new Map(
+    method.parameters.map((param) => [param.name, param] as const),
   );
 
-  if (!chatIdParam || !messageIdParam || !inlineMessageIdParam) {
-    return new Set<string>();
+  const chatIdParam = paramsByName.get("chat_id");
+  const messageIdParam = paramsByName.get("message_id");
+  const inlineMessageIdParam = paramsByName.get("inline_message_id");
+
+  if (chatIdParam && messageIdParam && inlineMessageIdParam) {
+    if (!hasParamValue(inlineMessageIdParam, values.inline_message_id)) {
+      conditionalParams.add("chat_id");
+      conditionalParams.add("message_id");
+    }
   }
 
-  if (hasParamValue(inlineMessageIdParam, values.inline_message_id)) {
-    return new Set<string>();
+  const userIdParam = paramsByName.get("user_id");
+
+  if (method.name === "sendGift" && userIdParam && chatIdParam) {
+    const hasUserId = hasParamValue(userIdParam, values.user_id);
+    const hasChatId = hasParamValue(chatIdParam, values.chat_id);
+
+    if (!hasUserId && !hasChatId) {
+      conditionalParams.add("user_id");
+      conditionalParams.add("chat_id");
+    }
   }
 
-  return new Set(["chat_id", "message_id"]);
+  const okParam = paramsByName.get("ok");
+  const errorMessageParam = paramsByName.get("error_message");
+  const shippingOptionsParam = paramsByName.get("shipping_options");
+
+  if (okParam && typeof values.ok === "boolean") {
+    if (values.ok === false && errorMessageParam) {
+      conditionalParams.add("error_message");
+    }
+
+    if (
+      method.name === "answerShippingQuery" &&
+      values.ok === true &&
+      shippingOptionsParam
+    ) {
+      conditionalParams.add("shipping_options");
+    }
+  }
+
+  const businessConnectionIdParam = paramsByName.get("business_connection_id");
+
+  if (
+    method.name === "unpinChatMessage" &&
+    businessConnectionIdParam &&
+    messageIdParam &&
+    hasParamValue(businessConnectionIdParam, values.business_connection_id)
+  ) {
+    conditionalParams.add("message_id");
+  }
+
+  return conditionalParams;
+}
+
+function validateConditionalRequirements(
+  method: TelegramMethod,
+  values: FormValues,
+) {
+  const paramsByName = new Map(
+    method.parameters.map((param) => [param.name, param] as const),
+  );
+  const chatIdParam = paramsByName.get("chat_id");
+  const messageIdParam = paramsByName.get("message_id");
+  const inlineMessageIdParam = paramsByName.get("inline_message_id");
+
+  if (chatIdParam && messageIdParam && inlineMessageIdParam) {
+    const hasInlineMessageId = hasParamValue(
+      inlineMessageIdParam,
+      values.inline_message_id,
+    );
+    const hasChatId = hasParamValue(chatIdParam, values.chat_id);
+    const hasMessageId = hasParamValue(messageIdParam, values.message_id);
+
+    if (!hasInlineMessageId && (!hasChatId || !hasMessageId)) {
+      throw new Error(
+        "chat_id and message_id are required unless inline_message_id is provided.",
+      );
+    }
+  }
+
+  if (method.name === "sendGift") {
+    const userIdParam = paramsByName.get("user_id");
+
+    if (userIdParam && chatIdParam) {
+      const hasUserId = hasParamValue(userIdParam, values.user_id);
+      const hasChatId = hasParamValue(chatIdParam, values.chat_id);
+
+      if (!hasUserId && !hasChatId) {
+        throw new Error("Either user_id or chat_id is required.");
+      }
+    }
+  }
+
+  const okValue = values.ok;
+
+  if (typeof okValue === "boolean") {
+    const errorMessageParam = paramsByName.get("error_message");
+
+    if (
+      okValue === false &&
+      errorMessageParam &&
+      !hasParamValue(errorMessageParam, values.error_message)
+    ) {
+      throw new Error("error_message is required when ok is false.");
+    }
+
+    const shippingOptionsParam = paramsByName.get("shipping_options");
+
+    if (
+      method.name === "answerShippingQuery" &&
+      okValue === true &&
+      shippingOptionsParam &&
+      !hasParamValue(shippingOptionsParam, values.shipping_options)
+    ) {
+      throw new Error("shipping_options is required when ok is true.");
+    }
+  }
+
+  if (method.name === "unpinChatMessage") {
+    const businessConnectionIdParam = paramsByName.get(
+      "business_connection_id",
+    );
+
+    if (
+      businessConnectionIdParam &&
+      messageIdParam &&
+      hasParamValue(businessConnectionIdParam, values.business_connection_id) &&
+      !hasParamValue(messageIdParam, values.message_id)
+    ) {
+      throw new Error(
+        "message_id is required when business_connection_id is provided.",
+      );
+    }
+  }
 }
 
 function createFormState(
@@ -193,31 +314,17 @@ function buildPayload(
   strict = true,
 ) {
   const payload: Record<string, unknown> = {};
-  const conditionalRequiredParams = getConditionalRequiredParams(
-    method,
-    values,
-  );
 
   if (strict) {
-    for (const paramName of conditionalRequiredParams) {
-      const param = method.parameters.find((item) => item.name === paramName);
-
-      if (!param || hasParamValue(param, values[paramName])) {
-        continue;
-      }
-
-      throw new Error(
-        `${paramName} is required unless inline_message_id is provided.`,
-      );
-    }
+    validateConditionalRequirements(method, values);
   }
 
   for (const param of method.parameters) {
     const rawValue = values[param.name];
 
     if (param.inputType === "boolean") {
-      if (rawValue === true) {
-        payload[param.name] = true;
+      if (rawValue === true || param.required) {
+        payload[param.name] = Boolean(rawValue);
       }
       continue;
     }

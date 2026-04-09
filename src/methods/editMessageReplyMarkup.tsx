@@ -53,13 +53,17 @@ const method: TelegramMethod = {
     {
       name: "reply_markup",
       type: "InlineKeyboardMarkup",
-      required: false,
+      required: true,
       description: "A JSON-serialized object for an inline keyboard.",
       inputType: "textarea",
       valueMode: "json",
     },
   ],
-  examplePayload: {},
+  examplePayload: {
+    reply_markup: {
+      inline_keyboard: [],
+    },
+  },
 };
 
 export default method;
