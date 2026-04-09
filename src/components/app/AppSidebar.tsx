@@ -7,6 +7,7 @@ import {
   LogOut,
   Plus,
   Loader2,
+  Trash2,
   X,
 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
@@ -14,6 +15,8 @@ import { sidebarGroups } from "@/lib/sidebar-data";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ADD_BOT_ACTION = "__add-bot__";
+const getSwitchAction = (token: string) => `switch:${token}`;
+const getRemoveAction = (token: string) => `remove:${token}`;
 
 function getBotName(profile: Record<string, unknown> | null) {
   if (typeof profile?.username === "string") {
@@ -151,6 +154,7 @@ export default function AppSidebar() {
     botProfile,
     savedBots,
     addBot,
+    removeBot,
     switchBot,
     logout,
   } = useApp();
@@ -265,7 +269,7 @@ export default function AppSidebar() {
     }
 
     setBotActionError("");
-    setActiveBotAction(targetToken);
+    setActiveBotAction(getSwitchAction(targetToken));
 
     try {
       await switchBot(targetToken);
@@ -274,6 +278,23 @@ export default function AppSidebar() {
     } catch (error) {
       setBotActionError(
         error instanceof Error ? error.message : "Unable to switch bots.",
+      );
+    } finally {
+      setActiveBotAction(null);
+    }
+  };
+
+  const handleRemoveBot = async (targetToken: string) => {
+    setBotActionError("");
+    setActiveBotAction(getRemoveAction(targetToken));
+
+    try {
+      await removeBot(targetToken);
+      setShowAddBotForm(false);
+      setNewBotToken("");
+    } catch (error) {
+      setBotActionError(
+        error instanceof Error ? error.message : "Unable to remove this bot.",
       );
     } finally {
       setActiveBotAction(null);
@@ -331,45 +352,64 @@ export default function AppSidebar() {
                       const savedBotName = getBotName(savedBot.profile);
                       const savedBotPhoto = getBotPhotoUrl(savedBot.profile);
                       const isActiveBot = savedBot.token === token;
-                      const isSwitching = activeBotAction === savedBot.token;
+                      const isSwitching =
+                        activeBotAction === getSwitchAction(savedBot.token);
+                      const isRemoving =
+                        activeBotAction === getRemoveAction(savedBot.token);
 
                       return (
-                        <button
+                        <div
                           key={savedBot.token}
-                          onClick={() => void handleSwitchBot(savedBot.token)}
-                          disabled={Boolean(activeBotAction) || isActiveBot}
-                          className={`flex w-full items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
+                          className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 transition ${
                             isActiveBot
                               ? "border-primary/30 bg-primary/10"
-                              : "border-border bg-card hover:border-primary/20 hover:bg-accent/40"
-                          } ${Boolean(activeBotAction) && !isActiveBot ? "opacity-70" : ""}`}
+                              : "border-border bg-card"
+                          } ${Boolean(activeBotAction) && !isRemoving ? "opacity-70" : ""}`}
                         >
-                          <BotAvatar
-                            name={savedBotName}
-                            photoUrl={savedBotPhoto}
-                            className="h-8 w-8 rounded-lg"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-xs font-medium text-foreground">
-                              {savedBotName}
-                            </p>
-                            <p className="truncate font-mono text-[10px] text-muted-foreground">
-                              {maskBotToken(savedBot.token)}
-                            </p>
-                          </div>
-                          <span
-                            className={`flex items-center gap-1 text-[10px] font-medium ${
-                              isActiveBot
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                            }`}
+                          <button
+                            onClick={() => void handleSwitchBot(savedBot.token)}
+                            disabled={Boolean(activeBotAction) || isActiveBot}
+                            className="flex min-w-0 flex-1 items-center gap-2 text-left"
                           >
-                            {isSwitching ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : null}
-                            {isActiveBot ? "Active" : "Switch"}
-                          </span>
-                        </button>
+                            <BotAvatar
+                              name={savedBotName}
+                              photoUrl={savedBotPhoto}
+                              className="h-8 w-8 rounded-lg"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-xs font-medium text-foreground">
+                                {savedBotName}
+                              </p>
+                              <p className="truncate font-mono text-[10px] text-muted-foreground">
+                                {maskBotToken(savedBot.token)}
+                              </p>
+                            </div>
+                            <span
+                              className={`flex items-center gap-1 text-[10px] font-medium ${
+                                isActiveBot
+                                  ? "text-primary"
+                                  : "text-muted-foreground"
+                              }`}
+                            >
+                              {isSwitching ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : null}
+                              {isActiveBot ? "Active" : "Switch"}
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => void handleRemoveBot(savedBot.token)}
+                            disabled={Boolean(activeBotAction)}
+                            title={`Remove ${savedBotName}`}
+                            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {isRemoving ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        </div>
                       );
                     })}
                   </div>

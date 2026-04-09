@@ -11,6 +11,7 @@ import {
   getAppSettings,
   getSavedBots,
   getSavedToken,
+  removeSavedBot,
   saveAppSettings,
   saveBotToken,
   validateBotToken,
@@ -26,6 +27,7 @@ import {
 interface AppContextType extends AppState {
   login: (token: string) => Promise<void>;
   addBot: (token: string) => Promise<void>;
+  removeBot: (token: string) => Promise<void>;
   switchBot: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   toggleSidebar: () => void;
@@ -182,6 +184,45 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [persistValidatedBot],
   );
 
+  const removeBot = useCallback(async (token: string) => {
+    const normalizedToken = token.trim();
+
+    if (!normalizedToken) {
+      throw new Error("Bot token cannot be empty.");
+    }
+
+    const result = await removeSavedBot(normalizedToken);
+    const nextActiveToken = result.activeToken ?? "";
+    const nextActiveBot = result.bots.find(
+      (savedBot) => savedBot.token === nextActiveToken,
+    );
+
+    setMethodActions(null);
+    setState((current) => {
+      if (!nextActiveToken || !nextActiveBot) {
+        return {
+          ...initialAppState,
+          isInitializing: false,
+          sidebarCollapsed: current.sidebarCollapsed,
+          savedBots: result.bots,
+        };
+      }
+
+      const removedActiveBot = current.token === normalizedToken;
+
+      return {
+        ...current,
+        token: nextActiveToken,
+        botProfile: nextActiveBot.profile,
+        savedBots: result.bots,
+        isLoggedIn: true,
+        isInitializing: false,
+        responseState: removedActiveBot ? "idle" : current.responseState,
+        lastResponse: removedActiveBot ? null : current.lastResponse,
+      };
+    });
+  }, []);
+
   const switchBot = useCallback(
     async (token: string) => {
       const normalizedToken = token.trim();
@@ -266,6 +307,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...state,
       login,
       addBot,
+      removeBot,
       switchBot,
       logout,
       toggleSidebar,
@@ -280,6 +322,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       methodActions,
+      removeBot,
       registerMethodActions,
       setCurrentView,
       setLastResponse,

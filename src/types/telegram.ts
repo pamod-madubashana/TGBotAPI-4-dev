@@ -72,6 +72,11 @@ export interface SavedBotAccount {
   profile: Record<string, unknown>;
 }
 
+export interface RemoveSavedBotResult {
+  activeToken: string | null;
+  bots: SavedBotAccount[];
+}
+
 export interface AppSettings {
   sidebarCollapsed: boolean;
 }

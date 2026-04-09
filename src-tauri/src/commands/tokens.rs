@@ -41,6 +41,13 @@ pub struct TokenValidationResult {
     pub response: MethodExecutionResult,
 }
 
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveSavedBotResult {
+    pub active_token: Option<String>,
+    pub bots: Vec<SavedBotAccount>,
+}
+
 fn load_token_store(app: &AppHandle) -> Result<TokenStore, String> {
     let mut store: TokenStore = storage::read_json(app, TOKENS_FILE)?;
 
@@ -157,6 +164,38 @@ pub fn save_bot_token(app: AppHandle, token: String, profile: Value) -> Result<(
 #[tauri::command]
 pub fn clear_saved_token(app: AppHandle) -> Result<(), String> {
     persist_token_store(&app, TokenStore::default())
+}
+
+#[tauri::command]
+pub fn remove_saved_bot(app: AppHandle, token: String) -> Result<RemoveSavedBotResult, String> {
+    let token = token.trim().to_string();
+
+    if token.is_empty() {
+        return Err("Bot token cannot be empty.".to_string());
+    }
+
+    let mut store = load_token_store(&app)?;
+    let initial_len = store.bots.len();
+    store.bots.retain(|bot| bot.token != token);
+
+    if store.bots.len() == initial_len {
+        return Err("Saved bot was not found.".to_string());
+    }
+
+    let next_active_token = match store.active_token.as_deref() {
+        Some(active_token) if active_token != token => Some(active_token.to_string()),
+        _ => store.bots.first().map(|bot| bot.token.clone()),
+    };
+
+    store.active_token = next_active_token.clone();
+    let bots = store.bots.clone();
+
+    persist_token_store(&app, store)?;
+
+    Ok(RemoveSavedBotResult {
+        active_token: next_active_token,
+        bots,
+    })
 }
 
 #[tauri::command]

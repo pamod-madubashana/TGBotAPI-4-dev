@@ -16,6 +16,7 @@ pub fn run() {
             commands::tokens::clear_saved_token,
             commands::tokens::get_saved_bots,
             commands::tokens::get_saved_token,
+            commands::tokens::remove_saved_bot,
             commands::tokens::save_bot_token,
             commands::tokens::validate_bot_token,
         ])

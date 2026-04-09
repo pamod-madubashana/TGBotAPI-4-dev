@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import {
   AppSettings,
+  RemoveSavedBotResult,
   RequestHistoryEntry,
   SavedBotAccount,
   SavedPreset,
@@ -29,6 +30,10 @@ export async function saveBotToken(
   profile: Record<string, unknown>,
 ) {
   return invoke<void>("save_bot_token", { token, profile });
+}
+
+export async function removeSavedBot(token: string) {
+  return invoke<RemoveSavedBotResult>("remove_saved_bot", { token });
 }
 
 export async function clearSavedToken() {
