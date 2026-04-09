@@ -393,8 +393,9 @@ export default function AppSidebar() {
                             >
                               {isSwitching ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : isActiveBot ? (
+                                "Active"
                               ) : null}
-                              {isActiveBot ? "Active" : "Switch"}
                             </span>
                           </button>
                           <button

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Bot, Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { motion } from "framer-motion";
+import appIcon from "../../src-tauri/icons/icon.png";
 
 export default function Login() {
   const { login } = useApp();
@@ -47,7 +48,11 @@ export default function Login() {
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
-              <Bot className="w-7 h-7 text-primary" />
+              <img
+                src={appIcon}
+                alt="Telegram Bot API Tester"
+                className="h-9 w-9 rounded-lg"
+              />
             </div>
             <h1 className="text-xl font-semibold text-foreground tracking-tight">
               Telegram Bot API Tester
