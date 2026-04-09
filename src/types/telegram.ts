@@ -67,6 +67,11 @@ export interface TokenValidationResult {
   response: TelegramMethodExecutionResult;
 }
 
+export interface SavedBotAccount {
+  token: string;
+  profile: Record<string, unknown>;
+}
+
 export interface AppSettings {
   sidebarCollapsed: boolean;
 }

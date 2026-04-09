@@ -9,7 +9,28 @@ const TOKENS_FILE: &str = "tokens.json";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 struct TokenStore {
+    #[serde(default)]
+    active_token: Option<String>,
+    #[serde(default)]
+    bots: Vec<SavedBotAccount>,
+    #[serde(default)]
     token: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SavedBotAccount {
+    pub token: String,
+    pub profile: Value,
+}
+
+impl Default for SavedBotAccount {
+    fn default() -> Self {
+        Self {
+            token: String::new(),
+            profile: Value::Object(Map::new()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -18,6 +39,23 @@ pub struct TokenValidationResult {
     pub token: String,
     pub profile: Value,
     pub response: MethodExecutionResult,
+}
+
+fn load_token_store(app: &AppHandle) -> Result<TokenStore, String> {
+    let mut store: TokenStore = storage::read_json(app, TOKENS_FILE)?;
+
+    if store.active_token.is_none() {
+        store.active_token = store.token.clone();
+    }
+
+    store.bots.retain(|bot| !bot.token.trim().is_empty());
+
+    Ok(store)
+}
+
+fn persist_token_store(app: &AppHandle, mut store: TokenStore) -> Result<(), String> {
+    store.token = None;
+    storage::write_json(app, TOKENS_FILE, &store)
 }
 
 async fn fetch_bot_profile_photo_url(
@@ -75,13 +113,9 @@ async fn fetch_bot_profile_photo_url(
 }
 
 pub(crate) fn load_saved_token(app: &AppHandle) -> Result<Option<String>, String> {
-    let store: TokenStore = storage::read_json(app, TOKENS_FILE)?;
+    let store = load_token_store(app)?;
 
-    Ok(store.token.filter(|token| !token.trim().is_empty()))
-}
-
-fn persist_token(app: &AppHandle, token: Option<String>) -> Result<(), String> {
-    storage::write_json(app, TOKENS_FILE, &TokenStore { token })
+    Ok(store.active_token.filter(|token| !token.trim().is_empty()))
 }
 
 #[tauri::command]
@@ -90,13 +124,39 @@ pub fn get_saved_token(app: AppHandle) -> Result<Option<String>, String> {
 }
 
 #[tauri::command]
-pub fn save_bot_token(app: AppHandle, token: String) -> Result<(), String> {
-    persist_token(&app, Some(token))
+pub fn get_saved_bots(app: AppHandle) -> Result<Vec<SavedBotAccount>, String> {
+    let store = load_token_store(&app)?;
+
+    Ok(store.bots)
+}
+
+#[tauri::command]
+pub fn save_bot_token(app: AppHandle, token: String, profile: Value) -> Result<(), String> {
+    let token = token.trim().to_string();
+
+    if token.is_empty() {
+        return Err("Bot token cannot be empty.".to_string());
+    }
+
+    let mut store = load_token_store(&app)?;
+
+    if let Some(existing_bot) = store.bots.iter_mut().find(|bot| bot.token == token) {
+        existing_bot.profile = profile;
+    } else {
+        store.bots.push(SavedBotAccount {
+            token: token.clone(),
+            profile,
+        });
+    }
+
+    store.active_token = Some(token);
+
+    persist_token_store(&app, store)
 }
 
 #[tauri::command]
 pub fn clear_saved_token(app: AppHandle) -> Result<(), String> {
-    persist_token(&app, None)
+    persist_token_store(&app, TokenStore::default())
 }
 
 #[tauri::command]

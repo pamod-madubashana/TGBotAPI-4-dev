@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import {
   AppSettings,
   RequestHistoryEntry,
+  SavedBotAccount,
   SavedPreset,
   TelegramMethodExecutionResult,
   TokenValidationResult,
@@ -19,8 +20,15 @@ export async function getSavedToken() {
   return invoke<string | null>("get_saved_token");
 }
 
-export async function saveBotToken(token: string) {
-  return invoke<void>("save_bot_token", { token });
+export async function getSavedBots() {
+  return invoke<SavedBotAccount[]>("get_saved_bots");
+}
+
+export async function saveBotToken(
+  token: string,
+  profile: Record<string, unknown>,
+) {
+  return invoke<void>("save_bot_token", { token, profile });
 }
 
 export async function clearSavedToken() {

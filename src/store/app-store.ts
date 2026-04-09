@@ -1,4 +1,8 @@
-import { AppView, TelegramMethodExecutionResult } from "@/types/telegram";
+import {
+  AppView,
+  SavedBotAccount,
+  TelegramMethodExecutionResult,
+} from "@/types/telegram";
 
 export type ResponseState = "idle" | "loading" | "success" | "error";
 
@@ -14,6 +18,7 @@ export interface MethodToolbarActions {
 export interface AppState {
   token: string;
   botProfile: Record<string, unknown> | null;
+  savedBots: SavedBotAccount[];
   isLoggedIn: boolean;
   isInitializing: boolean;
   sidebarCollapsed: boolean;
@@ -25,6 +30,7 @@ export interface AppState {
 export const initialAppState: AppState = {
   token: "",
   botProfile: null,
+  savedBots: [],
   isLoggedIn: false,
   isInitializing: true,
   sidebarCollapsed: false,

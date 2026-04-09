@@ -1,8 +1,71 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, ChevronRight, ChevronDown, Bot, LogOut } from "lucide-react";
+import {
+  Search,
+  ChevronRight,
+  ChevronDown,
+  Bot,
+  LogOut,
+  Plus,
+  Loader2,
+} from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { sidebarGroups } from "@/lib/sidebar-data";
 import { motion, AnimatePresence } from "framer-motion";
+
+const ADD_BOT_ACTION = "__add-bot__";
+
+function getBotName(profile: Record<string, unknown> | null) {
+  if (typeof profile?.username === "string") {
+    return `@${profile.username}`;
+  }
+
+  if (typeof profile?.first_name === "string") {
+    return String(profile.first_name);
+  }
+
+  return "Connected Bot";
+}
+
+function getBotPhotoUrl(profile: Record<string, unknown> | null) {
+  return typeof profile?.photoUrl === "string" ? profile.photoUrl : null;
+}
+
+function maskBotToken(token: string) {
+  return token ? `${token.slice(0, 8)}***` : "";
+}
+
+function BotAvatar({
+  name,
+  photoUrl,
+  className,
+}: {
+  name: string;
+  photoUrl: string | null;
+  className: string;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [photoUrl]);
+
+  return (
+    <div
+      className={`flex shrink-0 items-center justify-center overflow-hidden bg-primary/10 ${className}`}
+    >
+      {photoUrl && !imageFailed ? (
+        <img
+          src={photoUrl}
+          alt={name}
+          className="h-full w-full object-cover"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <Bot className="h-4 w-4 text-primary" />
+      )}
+    </div>
+  );
+}
 
 function SidebarSection({
   label,
@@ -21,8 +84,6 @@ function SidebarSection({
   open: boolean;
   onToggle: (label: string) => void;
 }) {
-  const hasSelected = items.some((i) => i.name === selectedItem);
-
   if (collapsed) {
     return (
       <div className="px-2 py-0.5">
@@ -83,16 +144,24 @@ function SidebarSection({
 
 export default function AppSidebar() {
   const {
-    sidebarCollapsed,
     currentView,
     setCurrentView,
     token,
     botProfile,
+    savedBots,
+    addBot,
+    switchBot,
     logout,
   } = useApp();
+  const sidebarCollapsed = false;
   const [search, setSearch] = useState("");
   const [showLogout, setShowLogout] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [botMenuOpen, setBotMenuOpen] = useState(false);
+  const [showAddBotForm, setShowAddBotForm] = useState(false);
+  const [newBotToken, setNewBotToken] = useState("");
+  const [botActionError, setBotActionError] = useState("");
+  const [activeBotAction, setActiveBotAction] = useState<string | null>(null);
 
   const selectedItem = currentView.kind !== "empty" ? currentView.name : null;
 
@@ -130,15 +199,85 @@ export default function AppSidebar() {
     setOpenSection((current) => (current === label ? null : label));
   };
 
-  const maskedToken = token ? token.slice(0, 8) + "***" : "";
-  const botName =
-    typeof botProfile?.username === "string"
-      ? `@${botProfile.username}`
-      : typeof botProfile?.first_name === "string"
-        ? String(botProfile.first_name)
-        : "Connected Bot";
-  const botPhotoUrl =
-    typeof botProfile?.photoUrl === "string" ? botProfile.photoUrl : null;
+  const botName = getBotName(botProfile);
+  const botPhotoUrl = getBotPhotoUrl(botProfile);
+  const maskedToken = maskBotToken(token);
+  const availableBots = useMemo(() => {
+    const bots =
+      savedBots.length > 0
+        ? savedBots
+        : token && botProfile
+          ? [{ token, profile: botProfile }]
+          : [];
+
+    return bots
+      .filter(
+        (bot, index, allBots) =>
+          allBots.findIndex((candidate) => candidate.token === bot.token) ===
+          index,
+      )
+      .sort((left, right) => {
+        if (left.token === token) {
+          return -1;
+        }
+
+        if (right.token === token) {
+          return 1;
+        }
+
+        return 0;
+      });
+  }, [botProfile, savedBots, token]);
+
+  const handleBotMenuToggle = () => {
+    setBotMenuOpen((current) => !current);
+    setBotActionError("");
+  };
+
+  const handleAddBot = async () => {
+    const normalizedToken = newBotToken.trim();
+
+    if (!normalizedToken) {
+      return;
+    }
+
+    setBotActionError("");
+    setActiveBotAction(ADD_BOT_ACTION);
+
+    try {
+      await addBot(normalizedToken);
+      setNewBotToken("");
+      setShowAddBotForm(false);
+      setBotMenuOpen(false);
+    } catch (error) {
+      setBotActionError(
+        error instanceof Error ? error.message : "Unable to add this bot.",
+      );
+    } finally {
+      setActiveBotAction(null);
+    }
+  };
+
+  const handleSwitchBot = async (targetToken: string) => {
+    if (targetToken === token) {
+      return;
+    }
+
+    setBotActionError("");
+    setActiveBotAction(targetToken);
+
+    try {
+      await switchBot(targetToken);
+      setShowAddBotForm(false);
+      setBotMenuOpen(false);
+    } catch (error) {
+      setBotActionError(
+        error instanceof Error ? error.message : "Unable to switch bots.",
+      );
+    } finally {
+      setActiveBotAction(null);
+    }
+  };
 
   return (
     <>
@@ -146,31 +285,160 @@ export default function AppSidebar() {
         className={`h-screen flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-200 shrink-0 ${sidebarCollapsed ? "w-14" : "w-72"}`}
       >
         {/* Header */}
-        <div
-          className={`flex items-center gap-2 p-3 border-b border-sidebar-border shrink-0 ${sidebarCollapsed ? "justify-center" : ""}`}
-        >
-          <div className="w-8 h-8 overflow-hidden rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            {botPhotoUrl ? (
-              <img
-                src={botPhotoUrl}
-                alt={botName}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <Bot className="w-4 h-4 text-primary" />
-            )}
-          </div>
-          {!sidebarCollapsed && (
-            <div className="flex-1 min-w-0 space-y-0.5">
+        <div className="border-b border-sidebar-border shrink-0">
+          <div className="flex items-center gap-3 p-3">
+            <BotAvatar
+              name={botName}
+              photoUrl={botPhotoUrl}
+              className="h-10 w-10 rounded-xl"
+            />
+            <div className="min-w-0 flex-1 space-y-0.5">
               <p className="text-[10px] text-muted-foreground">Connected Bot</p>
-              <p className="text-xs font-semibold text-foreground truncate">
+              <p className="truncate text-xs font-semibold text-foreground">
                 {botName}
               </p>
-              <p className="text-[10px] font-mono text-muted-foreground truncate">
+              <p className="truncate font-mono text-[10px] text-muted-foreground">
                 {maskedToken}
               </p>
             </div>
-          )}
+          </div>
+          <button
+            onClick={handleBotMenuToggle}
+            className="flex h-8 w-full items-center justify-between border-t border-sidebar-border/60 px-3 text-[11px] font-medium text-muted-foreground transition hover:bg-accent/40 hover:text-foreground"
+          >
+            <span>
+              {availableBots.length > 1
+                ? "Switch or add bot"
+                : "Add another bot"}
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${botMenuOpen ? "rotate-180 text-primary" : ""}`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {botMenuOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="overflow-hidden border-t border-sidebar-border/60"
+              >
+                <div className="space-y-3 p-3">
+                  <div className="space-y-1">
+                    {availableBots.map((savedBot) => {
+                      const savedBotName = getBotName(savedBot.profile);
+                      const savedBotPhoto = getBotPhotoUrl(savedBot.profile);
+                      const isActiveBot = savedBot.token === token;
+                      const isSwitching = activeBotAction === savedBot.token;
+
+                      return (
+                        <button
+                          key={savedBot.token}
+                          onClick={() => void handleSwitchBot(savedBot.token)}
+                          disabled={Boolean(activeBotAction) || isActiveBot}
+                          className={`flex w-full items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
+                            isActiveBot
+                              ? "border-primary/30 bg-primary/10"
+                              : "border-border bg-card hover:border-primary/20 hover:bg-accent/40"
+                          } ${Boolean(activeBotAction) && !isActiveBot ? "opacity-70" : ""}`}
+                        >
+                          <BotAvatar
+                            name={savedBotName}
+                            photoUrl={savedBotPhoto}
+                            className="h-8 w-8 rounded-lg"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-medium text-foreground">
+                              {savedBotName}
+                            </p>
+                            <p className="truncate font-mono text-[10px] text-muted-foreground">
+                              {maskBotToken(savedBot.token)}
+                            </p>
+                          </div>
+                          <span
+                            className={`flex items-center gap-1 text-[10px] font-medium ${
+                              isActiveBot
+                                ? "text-primary"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {isSwitching ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : null}
+                            {isActiveBot ? "Active" : "Switch"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setShowAddBotForm((current) => !current);
+                      setBotActionError("");
+                    }}
+                    disabled={Boolean(activeBotAction)}
+                    className="flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-xs font-medium text-muted-foreground transition hover:border-primary/30 hover:bg-accent/40 hover:text-foreground"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    {showAddBotForm ? "Cancel" : "Add another bot"}
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {showAddBotForm && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.16 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="space-y-2 rounded-lg border border-border bg-card/60 p-2.5">
+                          <input
+                            type="text"
+                            placeholder="123456789:AAExampleBotTokenHere"
+                            value={newBotToken}
+                            onChange={(event) => {
+                              setNewBotToken(event.target.value);
+                              setBotActionError("");
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                void handleAddBot();
+                              }
+                            }}
+                            className="h-9 w-full rounded-md border border-border bg-input px-3 font-mono text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                          />
+                          <button
+                            onClick={() => void handleAddBot()}
+                            disabled={
+                              !newBotToken.trim() ||
+                              activeBotAction === ADD_BOT_ACTION
+                            }
+                            className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-primary text-xs font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {activeBotAction === ADD_BOT_ACTION ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Plus className="h-3.5 w-3.5" />
+                            )}
+                            Save and switch
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {botActionError && (
+                    <p className="text-[11px] text-destructive">
+                      {botActionError}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Search */}
@@ -236,8 +504,8 @@ export default function AppSidebar() {
               Confirm Logout
             </h3>
             <p className="text-xs text-muted-foreground mb-6">
-              Are you sure you want to disconnect your bot and return to the
-              login screen?
+              Are you sure you want to disconnect all saved bots and return to
+              the login screen?
             </p>
             <div className="flex gap-2 justify-end">
               <button

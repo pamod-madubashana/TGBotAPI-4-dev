@@ -9,6 +9,7 @@ import React, {
 import {
   clearSavedToken,
   getAppSettings,
+  getSavedBots,
   getSavedToken,
   saveAppSettings,
   saveBotToken,
@@ -24,6 +25,8 @@ import {
 
 interface AppContextType extends AppState {
   login: (token: string) => Promise<void>;
+  addBot: (token: string) => Promise<void>;
+  switchBot: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   toggleSidebar: () => void;
   setCurrentView: (view: AppView) => void;
@@ -40,6 +43,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [methodActions, setMethodActions] =
     useState<MethodToolbarActions | null>(null);
 
+  const persistValidatedBot = useCallback(
+    async (token: string, profile: Record<string, unknown>) => {
+      await saveBotToken(token, profile);
+      return getSavedBots();
+    },
+    [],
+  );
+
   useEffect(() => {
     let active = true;
 
@@ -55,9 +66,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!storedToken) {
+          const savedBots = await getSavedBots();
+
+          if (!active) {
+            return;
+          }
+
           setState((current) => ({
             ...current,
             isInitializing: false,
+            savedBots,
             sidebarCollapsed: settings.sidebarCollapsed,
           }));
           return;
@@ -65,6 +83,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
         try {
           const validation = await validateBotToken(storedToken);
+          const savedBots = await persistValidatedBot(
+            storedToken,
+            validation.profile,
+          );
 
           if (!active) {
             return;
@@ -74,6 +96,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             ...current,
             token: storedToken,
             botProfile: validation.profile,
+            savedBots,
             isLoggedIn: true,
             isInitializing: false,
             sidebarCollapsed: settings.sidebarCollapsed,
@@ -88,6 +111,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           setState((current) => ({
             ...current,
             isInitializing: false,
+            savedBots: [],
             sidebarCollapsed: settings.sidebarCollapsed,
           }));
         }
@@ -108,23 +132,84 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [persistValidatedBot]);
 
-  const login = useCallback(async (token: string) => {
-    const validation = await validateBotToken(token);
-    await saveBotToken(token);
+  const login = useCallback(
+    async (token: string) => {
+      const normalizedToken = token.trim();
+      const validation = await validateBotToken(normalizedToken);
+      const savedBots = await persistValidatedBot(
+        normalizedToken,
+        validation.profile,
+      );
 
-    setState((current) => ({
-      ...current,
-      token,
-      botProfile: validation.profile,
-      isLoggedIn: true,
-      isInitializing: false,
-      currentView: { kind: "method", name: "getMe" },
-      responseState: "success",
-      lastResponse: validation.response,
-    }));
-  }, []);
+      setState((current) => ({
+        ...current,
+        token: normalizedToken,
+        botProfile: validation.profile,
+        savedBots,
+        isLoggedIn: true,
+        isInitializing: false,
+        currentView: { kind: "method", name: "getMe" },
+        responseState: "success",
+        lastResponse: validation.response,
+      }));
+    },
+    [persistValidatedBot],
+  );
+
+  const addBot = useCallback(
+    async (token: string) => {
+      const normalizedToken = token.trim();
+      const validation = await validateBotToken(normalizedToken);
+      const savedBots = await persistValidatedBot(
+        normalizedToken,
+        validation.profile,
+      );
+
+      setMethodActions(null);
+      setState((current) => ({
+        ...current,
+        token: normalizedToken,
+        botProfile: validation.profile,
+        savedBots,
+        isLoggedIn: true,
+        isInitializing: false,
+        responseState: "idle",
+        lastResponse: null,
+      }));
+    },
+    [persistValidatedBot],
+  );
+
+  const switchBot = useCallback(
+    async (token: string) => {
+      const normalizedToken = token.trim();
+
+      if (!normalizedToken) {
+        throw new Error("Bot token cannot be empty.");
+      }
+
+      const validation = await validateBotToken(normalizedToken);
+      const savedBots = await persistValidatedBot(
+        normalizedToken,
+        validation.profile,
+      );
+
+      setMethodActions(null);
+      setState((current) => ({
+        ...current,
+        token: normalizedToken,
+        botProfile: validation.profile,
+        savedBots,
+        isLoggedIn: true,
+        isInitializing: false,
+        responseState: "idle",
+        lastResponse: null,
+      }));
+    },
+    [persistValidatedBot],
+  );
 
   const logout = useCallback(async () => {
     await clearSavedToken();
@@ -180,6 +265,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     () => ({
       ...state,
       login,
+      addBot,
+      switchBot,
       logout,
       toggleSidebar,
       setCurrentView,
@@ -189,6 +276,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       registerMethodActions,
     }),
     [
+      addBot,
       login,
       logout,
       methodActions,
@@ -197,6 +285,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLastResponse,
       setResponseState,
       state,
+      switchBot,
       toggleSidebar,
     ],
   );

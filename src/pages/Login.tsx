@@ -99,8 +99,8 @@ export default function Login() {
           {/* Helper text */}
           <p className="text-xs text-muted-foreground mb-6 px-1">
             Your token is validated with{" "}
-            <span className="font-mono">getMe</span>, then stored locally for
-            Telegram Bot API requests.
+            <span className="font-mono">getMe</span>, then stored locally so you
+            can switch between saved bots later.
           </p>
 
           {/* Login button */}
