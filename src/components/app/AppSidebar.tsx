@@ -19,27 +19,24 @@ function SidebarSection({
   selectedItem,
   onSelect,
   collapsed,
+  open,
+  onToggle,
 }: {
   label: string;
   items: { name: string; kind: "method" | "type" }[];
   selectedItem: string | null;
   onSelect: (name: string, kind: "method" | "type") => void;
   collapsed: boolean;
+  open: boolean;
+  onToggle: (label: string) => void;
 }) {
   const hasSelected = items.some((i) => i.name === selectedItem);
-  const [open, setOpen] = useState(hasSelected);
-
-  useEffect(() => {
-    if (hasSelected) {
-      setOpen(true);
-    }
-  }, [hasSelected]);
 
   if (collapsed) {
     return (
       <div className="px-2 py-0.5">
         <button
-          onClick={() => setOpen(!open)}
+          onClick={() => onToggle(label)}
           className={`w-full h-8 flex items-center justify-center rounded-md transition ${hasSelected ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
           title={label}
         >
@@ -52,8 +49,8 @@ function SidebarSection({
   return (
     <div className="py-0.5">
       <button
-        onClick={() => setOpen(!open)}
-        className={`w-full flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium transition hover:bg-accent/50 ${hasSelected ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+        onClick={() => onToggle(label)}
+        className={`sticky top-0 z-10 w-full flex items-center gap-1.5 border-b border-sidebar-border/60 bg-sidebar/95 px-4 py-1.5 text-xs font-medium backdrop-blur-sm transition hover:bg-accent/50 ${hasSelected ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
       >
         {open ? (
           <ChevronDown className="w-3 h-3 shrink-0" />
@@ -105,8 +102,23 @@ export default function AppSidebar() {
   } = useApp();
   const [search, setSearch] = useState("");
   const [showLogout, setShowLogout] = useState(false);
+  const [openSection, setOpenSection] = useState<string | null>(null);
 
   const selectedItem = currentView.kind !== "empty" ? currentView.name : null;
+
+  useEffect(() => {
+    if (!selectedItem) {
+      return;
+    }
+
+    const selectedSection = sidebarGroups.sections.find((section) =>
+      section.items.some((item) => item.name === selectedItem),
+    );
+
+    if (selectedSection) {
+      setOpenSection(selectedSection.label);
+    }
+  }, [selectedItem]);
 
   const filteredSections = useMemo(() => {
     if (!search) return sidebarGroups.sections;
@@ -122,6 +134,10 @@ export default function AppSidebar() {
 
   const onSelect = (name: string, kind: "method" | "type") => {
     setCurrentView({ kind, name });
+  };
+
+  const onToggleSection = (label: string) => {
+    setOpenSection((current) => (current === label ? null : label));
   };
 
   const maskedToken = token ? token.slice(0, 8) + "***" : "";
@@ -190,6 +206,8 @@ export default function AppSidebar() {
               selectedItem={selectedItem}
               onSelect={onSelect}
               collapsed={sidebarCollapsed}
+              open={openSection === section.label}
+              onToggle={onToggleSection}
             />
           ))}
         </div>
