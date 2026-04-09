@@ -843,9 +843,9 @@ export default function ReplyMarkupEditor({
                         className={selectClassName()}
                       >
                         <option value="">Default</option>
-                        <option value="primary">Blue / primary</option>
-                        <option value="success">Green / success</option>
-                        <option value="danger">Red / danger</option>
+                        <option value="primary">primary (blue)</option>
+                        <option value="success">success (green)</option>
+                        <option value="danger">danger (red)</option>
                       </select>
                     </Field>
 
@@ -1194,9 +1194,9 @@ export default function ReplyMarkupEditor({
                         className={selectClassName()}
                       >
                         <option value="">Default</option>
-                        <option value="primary">Blue / primary</option>
-                        <option value="success">Green / success</option>
-                        <option value="danger">Red / danger</option>
+                        <option value="primary">primary (blue)</option>
+                        <option value="success">success (green)</option>
+                        <option value="danger">danger (red)</option>
                       </select>
                     </Field>
 

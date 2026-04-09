@@ -4,7 +4,6 @@ import {
   ChevronRight,
   ChevronDown,
   Bot,
-  LogOut,
   Plus,
   Loader2,
   Trash2,
@@ -156,11 +155,9 @@ export default function AppSidebar() {
     addBot,
     removeBot,
     switchBot,
-    logout,
   } = useApp();
   const sidebarCollapsed = false;
   const [search, setSearch] = useState("");
-  const [showLogout, setShowLogout] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [botMenuOpen, setBotMenuOpen] = useState(false);
   const [showAddBotForm, setShowAddBotForm] = useState(false);
@@ -518,58 +515,7 @@ export default function AppSidebar() {
             />
           ))}
         </div>
-
-        {/* Footer */}
-        <div
-          className={`border-t border-sidebar-border p-3 shrink-0 ${sidebarCollapsed ? "flex flex-col items-center gap-2" : "space-y-2"}`}
-        >
-          <div className={`flex ${sidebarCollapsed ? "flex-col" : ""} gap-1`}>
-            <button
-              onClick={() => setShowLogout(true)}
-              className="flex-1 h-7 flex items-center justify-center gap-1.5 rounded-md text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
-              title="Logout"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              {!sidebarCollapsed && <span>Logout</span>}
-            </button>
-          </div>
-        </div>
       </div>
-
-      {/* Logout confirmation */}
-      {showLogout && (
-        <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center"
-          onClick={() => setShowLogout(false)}
-        >
-          <div
-            className="bg-card border border-border rounded-xl p-6 w-full max-w-sm shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-sm font-semibold text-foreground mb-2">
-              Confirm Logout
-            </h3>
-            <p className="text-xs text-muted-foreground mb-6">
-              Are you sure you want to disconnect all saved bots and return to
-              the login screen?
-            </p>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setShowLogout(false)}
-                className="h-8 px-4 rounded-md text-xs bg-secondary text-secondary-foreground hover:bg-accent transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => void logout()}
-                className="h-8 px-4 rounded-md text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 transition"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
